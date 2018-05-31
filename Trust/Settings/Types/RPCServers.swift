@@ -18,6 +18,7 @@ enum RPCServer {
     case sokol
     case classic
     case callisto
+    case ellaism
     case custom(CustomRPC)
 
     var chainID: Int {
@@ -30,6 +31,7 @@ enum RPCServer {
         case .sokol: return 77
         case .classic: return 61
         case .callisto: return 820
+        case .ellaism: return 64
         case .custom(let custom):
             return custom.chainID
         }
@@ -45,6 +47,7 @@ enum RPCServer {
         case .sokol: return "Sokol"
         case .classic: return "Ethereum Classic"
         case .callisto: return "Callisto"
+        case .ellaism: return "Ellaism"
         case .custom(let custom):
             return custom.name
         }
@@ -56,7 +59,7 @@ enum RPCServer {
 
     var networkType: NetworkType {
         switch self {
-        case .main, .poa, .classic, .callisto: return .main
+        case .main, .poa, .classic, .callisto, .ellaism: return .main
         case .kovan, .ropsten, .rinkeby, .sokol: return .test
         case .custom: return .custom
         }
@@ -71,6 +74,7 @@ enum RPCServer {
         case .kovan: return "KETH"
         case .poa: return "POA"
         case .sokol: return "SPOA"
+        case .ellaism: return "ELLA"
         case .custom(let custom):
             return custom.symbol
         }
@@ -95,6 +99,7 @@ enum RPCServer {
             case .rinkeby: return "https://rinkeby.infura.io/llyrtzQ3YhkdESt2Fzrk"
             case .poa: return "https://core.poa.network"
             case .sokol: return "https://sokol.poa.network"
+            case .ellaism: return "https://jsonrpc.ellaism.org"
             case .custom(let custom):
                 return custom.endpoint
             }
@@ -113,6 +118,7 @@ enum RPCServer {
             case .rinkeby: return "https://rinkeby.trustwalletapp.com"
             case .poa: return "https://poa.trustwalletapp.com"
             case .sokol: return "https://trust-sokol.herokuapp.com"
+            case .ellaism: return "https://ellaism.trustwalletapp.com"
             case .custom:
                 return "" // Enable? make optional
             }
@@ -129,6 +135,8 @@ enum RPCServer {
             return Address(string: "0x112234455c3a32fd11230c42e7bccd4a84e02010")!
         case .rinkeby:
             return Address(string: "0xe7410170f87102df0055eb195163a03b7f2bff4a")!
+        case .ellaism:
+            return Address(string: "0x518232dd973c321107d28cb11483b857b9a1e158")!
         case .classic, .poa, .kovan, .callisto, .sokol, .custom:
             return Address.zero
         }
@@ -145,6 +153,7 @@ enum RPCServer {
             case RPCServer.rinkeby.name: return .rinkeby
             case RPCServer.poa.name: return .poa
             case RPCServer.sokol.name: return .sokol
+            case RPCServer.ellaism.name: return .ellaism
             default: return .main
             }
         }()
@@ -161,6 +170,7 @@ enum RPCServer {
             case RPCServer.rinkeby.chainID: return .rinkeby
             case RPCServer.poa.chainID: return .poa
             case RPCServer.sokol.chainID: return .sokol
+            case RPCServer.ellaism.chainID: return .ellaism
             default: return .main
             }
         }()

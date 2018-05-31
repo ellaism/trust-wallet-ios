@@ -32,6 +32,8 @@ struct ConfigExplorer {
                 return endpoint + "/tx/" + ID
             case .callisto:
                 return endpoint + "/tx/" + ID
+            case .ellaism:
+                return endpoint + "/tx/" + ID
             case .custom:
                 return .none
             }
@@ -58,6 +60,8 @@ struct ConfigExplorer {
             return "https://sokol-explorer.poa.network"
         case .callisto:
             return "https://explorer.callisto.network"
+        case .ellaism:
+            return "https://explorer.ellaism.org"
         case .custom:
             return .none
         }
