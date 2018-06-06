@@ -17,7 +17,7 @@ enum RPCServer {
     var chainID: Int {
         switch self {
         case .ellaism: return 64
-        case .shikinseki: return 64
+        case .shikinseki: return 16448
         case .custom(let custom):
             return custom.chainID
         }
