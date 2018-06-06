@@ -40,7 +40,7 @@ class WalletViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.navigationItem.titleView = segmentController
+        //self.navigationItem.titleView = segmentController
         setupView()
     }
 
