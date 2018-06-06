@@ -121,21 +121,21 @@ class SettingsViewController: FormViewController, Coordinator {
 
             <<< autoLockRow
 
-            <<< AppFormAppearance.button { [weak self] row in
-                row.cellStyle = .value1
-                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-                    let controller = NotificationsViewController()
-                    controller.didChange = { [weak self] change in
-                        self?.run(action: .pushNotifications(change))
-                    }
-                    return controller
-                }, onDismiss: { _ in
-            })
-            }.cellUpdate { cell, _ in
-                cell.imageView?.image = R.image.settings_colorful_notifications()
-                cell.textLabel?.text = NSLocalizedString("settings.pushNotifications.title", value: "Push Notifications", comment: "")
-                cell.accessoryType = .disclosureIndicator
-            }
+//            <<< AppFormAppearance.button { [weak self] row in
+//                row.cellStyle = .value1
+//                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+//                    let controller = NotificationsViewController()
+//                    controller.didChange = { [weak self] change in
+//                        self?.run(action: .pushNotifications(change))
+//                    }
+//                    return controller
+//                }, onDismiss: { _ in
+//            })
+//            }.cellUpdate { cell, _ in
+//                cell.imageView?.image = R.image.settings_colorful_notifications()
+//                cell.textLabel?.text = NSLocalizedString("settings.pushNotifications.title", value: "Push Notifications", comment: "")
+//                cell.accessoryType = .disclosureIndicator
+//            }
 
             +++ Section()
 
@@ -144,24 +144,26 @@ class SettingsViewController: FormViewController, Coordinator {
 
             +++ Section(NSLocalizedString("settings.joinCommunity.label.title", value: "Join Community", comment: ""))
 
+            <<< linkProvider(type: .discord)
             <<< linkProvider(type: .twitter)
             <<< linkProvider(type: .telegram)
+            <<< linkProvider(type: .reddit)
             <<< linkProvider(type: .facebook)
-            <<< linkProvider(type: .discord)
+            <<< linkProvider(type: .bitcointalk)
 
-            +++ Section(NSLocalizedString("settings.support.label.title", value: "Support", comment: ""))
-
-            <<< AppFormAppearance.button { button in
-                button.title = NSLocalizedString("settings.shareWithFriends.button.title", value: "Share With Friends", comment: "")
-                button.cell.imageView?.image = R.image.settings_colorful_share()
-            }.onCellSelection { [unowned self] cell, _  in
-                self.helpUsCoordinator.presentSharing(in: self, from: cell.contentView)
-            }
-
-            +++ Section()
-
-            <<< aboutRow()
-            <<< supportRow()
+//            +++ Section(NSLocalizedString("settings.support.label.title", value: "Support", comment: ""))
+//
+//            <<< AppFormAppearance.button { button in
+//                button.title = NSLocalizedString("settings.shareWithFriends.button.title", value: "Share With Friends", comment: "")
+//                button.cell.imageView?.image = R.image.settings_colorful_share()
+//            }.onCellSelection { [unowned self] cell, _  in
+//                self.helpUsCoordinator.presentSharing(in: self, from: cell.contentView)
+//            }
+//
+//            +++ Section()
+//
+//            <<< aboutRow()
+//            <<< supportRow()
 
             +++ Section()
 
