@@ -14,15 +14,8 @@ struct SettingsViewModel {
 
     var servers: [RPCServer] {
         return [
-            RPCServer.main,
-            RPCServer.classic,
-            RPCServer.poa,
-            RPCServer.callisto,
-            RPCServer.kovan,
-            RPCServer.ropsten,
-            RPCServer.rinkeby,
-            RPCServer.sokol,
             RPCServer.ellaism,
+            RPCServer.shikinseki,
         ]
     }
 

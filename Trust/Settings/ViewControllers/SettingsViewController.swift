@@ -185,14 +185,14 @@ class SettingsViewController: FormViewController, Coordinator {
                 return value?.displayName
             }
         }.onChange { [weak self] row in
-            let server = row.value ?? RPCServer.main
+            let server = row.value ?? RPCServer.ellaism
             self?.run(action: .RPCServer(server: server))
         }.onPresent { _, selectorController in
             selectorController.enableDeselection = false
             selectorController.sectionKeyForValue = { option in
                 switch option {
-                case .main, .classic, .callisto, .poa, .ellaism: return ""
-                case .kovan, .ropsten, .rinkeby, .sokol: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
+                case .ellaism: return NSLocalizedString("settings.network.main.label.title", value: "Main", comment: "")
+                case .shikinseki: return NSLocalizedString("settings.network.test.label.title", value: "Test", comment: "")
                 case .custom:
                     return NSLocalizedString("settings.network.custom.label.title", value: "Custom", comment: "")
                 }

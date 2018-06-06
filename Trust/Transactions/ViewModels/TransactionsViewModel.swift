@@ -38,7 +38,7 @@ struct TransactionsViewModel {
 
     var isBuyActionAvailable: Bool {
         switch config.server {
-        case .main, .kovan, .classic, .callisto, .ropsten, .rinkeby, .poa, .sokol, .ellaism, .custom: return false
+        case .shikinseki, .ellaism, .custom: return false
         }
     }
 
