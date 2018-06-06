@@ -213,7 +213,7 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         CookiesStore.delete()
         removeAllCoordinators()
-        showTabBar(for: account)
+        //showTabBar(for: account)
     }
 
     func checkDevice() {
