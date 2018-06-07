@@ -130,7 +130,7 @@ struct TransactionsViewModel {
 
     func fetchTransactions(completion: (() -> Void)? = .none) {
         self.network.transactions(for: session.account.address, startBlock: 1, page: 0, contract: nil) { result in
-            guard let transactions = result.0 else { return }
+            guard let transactions = result.0 else { completion?(); return; }
             self.storage.add(transactions)
             completion?()
         }
