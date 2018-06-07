@@ -142,7 +142,7 @@ class SettingsViewController: FormViewController, Coordinator {
             <<< currencyRow()
             <<< browserRow()
 
-            +++ Section(NSLocalizedString("settings.joinCommunity.label.title", value: "Join Community", comment: ""))
+            +++ Section(NSLocalizedString("settings.community.label.title", value: "Community", comment: ""))
 
             <<< linkProvider(type: .discord)
             <<< linkProvider(type: .twitter)
@@ -165,14 +165,12 @@ class SettingsViewController: FormViewController, Coordinator {
 //            <<< aboutRow()
 //            <<< supportRow()
 
-            +++ Section()
+            +++ Section(NSLocalizedString("settings.about.label.title", value: "About", comment: ""))
 
-            <<< TextRow {
-                $0.title = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
-                $0.value = Bundle.main.fullVersion
-                $0.disabled = true
+            <<< versionRow()
+            <<< aboutRow()
             }
-    }
+
 
     private func networkRow() -> PushRow<RPCServer> {
         return PushRow<RPCServer> { [weak self] in
@@ -271,6 +269,18 @@ class SettingsViewController: FormViewController, Coordinator {
             cell.accessoryType = .disclosureIndicator
         }
     }
+    
+    private func versionRow() -> ButtonRow {
+        return AppFormAppearance.button { row in
+            row.cellStyle = .value1
+            }.cellUpdate { cell, _ in
+                cell.textLabel?.textColor = .black
+                cell.imageView?.image = R.image.settings_colorful_about()
+                cell.textLabel?.text = NSLocalizedString("settings.version.label.title", value: "Version", comment: "")
+                cell.detailTextLabel?.text = Bundle.main.fullVersion
+                cell.accessoryType = .none
+        }
+    }
 
     private func aboutRow() -> ButtonRow {
         return AppFormAppearance.button { row in
@@ -282,7 +292,7 @@ class SettingsViewController: FormViewController, Coordinator {
             }, onDismiss: { _ in })
         }.cellUpdate { cell, _ in
             cell.textLabel?.textColor = .black
-            cell.imageView?.image = R.image.settings_colorful_about()
+            cell.imageView?.image = R.image.settings_colorful_support()
             cell.textLabel?.text = NSLocalizedString("settings.about.title", value: "About", comment: "")
             cell.accessoryType = .disclosureIndicator
         }

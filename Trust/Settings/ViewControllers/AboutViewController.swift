@@ -28,29 +28,28 @@ class AboutViewController: FormViewController {
 
             <<< link(
                 title: NSLocalizedString("settings.sourceCode.button.title", value: "Source Code", comment: ""),
-                value: "https://github.com/TrustWallet/trust-wallet-ios",
-                image: R.image.settings_open_source()
+                value: "https://github.com/ellaism/trust-wallet-ios",
+                image: R.image.settings_road_map()
             )
 
             <<< link(
                 title: NSLocalizedString("settings.reportBug.button.title", value: "Report a Bug", comment: ""),
-                value: "https://github.com/TrustWallet/trust-wallet-ios/issues/new",
+                value: "https://github.com/ellaism/trust-wallet-ios/issues/new",
                 image: R.image.settings_bug()
             )
 
             +++ Section(NSLocalizedString("Powered By", value: "Powered By", comment: ""))
 
             <<< link(
-                title: NSLocalizedString("Infura", value: "Infura", comment: ""),
-                value: "https://infura.io/",
-                image: R.image.infura()
-
+                title: NSLocalizedString("TrustWallet", value: "TrustWallet", comment: ""),
+                value: "https://trustwalletapp.com/",
+                image: R.image.settings_privacy_policy()
             )
 
             <<< link(
-                title: NSLocalizedString("OpenSea", value: "OpenSea", comment: ""),
-                value: "https://opensea.io/",
-                image: R.image.opensea()
+                title: NSLocalizedString("TrustWallet Source Code", value: "TrustWallet Source Code", comment: ""),
+                value: "https://github.com/TrustWallet",
+                image: R.image.settings_open_source()
             )
     }
 
