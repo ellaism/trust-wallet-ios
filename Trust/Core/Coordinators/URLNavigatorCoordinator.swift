@@ -5,15 +5,16 @@ import URLNavigator
 import TrustWalletSDK
 
 struct URLNavigatorCoordinator {
-    let branch = BranchCoordinator()
+    //let branch = BranchCoordinator()
     let navigator = Navigator()
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey: Any] = [:]) -> Bool {
-        var handled = branch.application(app, open: url, options: options)
+        //var handled = branch.application(app, open: url, options: options)
 
-        if !handled {
-            handled = navigator.open(url)
-        }
-        return handled
+        //if !handled {
+        //    handled = navigator.open(url)
+        //}
+        navigator.open(url)
+        return true
     }
 }

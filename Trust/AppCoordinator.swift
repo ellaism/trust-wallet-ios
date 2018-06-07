@@ -51,10 +51,10 @@ class AppCoordinator: NSObject, Coordinator {
         }
         pushNotificationRegistrar.reRegister()
 
-        navigator.branch.newEventClosure = { [weak self] event in
-            guard let coordinator = self?.inCoordinator else { return false }
-            return coordinator.handleEvent(event)
-        }
+//        navigator.branch.newEventClosure = { [weak self] event in
+//            guard let coordinator = self?.inCoordinator else { return false }
+//            return coordinator.handleEvent(event)
+//        }
     }
 
     func showTransactions(for wallet: Wallet) {
@@ -70,9 +70,9 @@ class AppCoordinator: NSObject, Coordinator {
         addCoordinator(coordinator)
 
         // Activate last event on first sign in
-        guard let event = navigator.branch.lastEvent else { return }
-        coordinator.handleEvent(event)
-        navigator.branch.clearEvents()
+//        guard let event = navigator.branch.lastEvent else { return }
+//        coordinator.handleEvent(event)
+//        navigator.branch.clearEvents()
     }
 
     func inializers() {
