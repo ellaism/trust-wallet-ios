@@ -76,8 +76,8 @@ enum RPCServer {
     var remoteURL: URL {
         let urlString: String = {
             switch self {
-            case .ellaism: return "https://ellaism.wallet.nonlocal.ca"
-            case .shikinseki: return "https://shikinseki.wallet.nonlocal.ca"
+            case .ellaism: return "https://ellaismwallet.nonlocal.ca"
+            case .shikinseki: return "https://ellaismwallet.nonlocal.ca"
             case .custom:
                 return "" // Enable? make optional
             }
