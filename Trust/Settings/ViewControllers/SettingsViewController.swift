@@ -9,6 +9,31 @@ protocol SettingsViewControllerDelegate: class {
     func didAction(action: SettingsAction, in viewController: SettingsViewController)
 }
 
+struct Env {
+    
+    private static let production : Bool = {
+        #if DEBUG
+        print("DEBUG")
+        let dic = ProcessInfo.processInfo.environment
+        if let forceProduction = dic["forceProduction"] , forceProduction == "true" {
+            return true
+        }
+        return false
+        #elseif ADHOC
+        print("ADHOC")
+        return false
+        #else
+        print("PRODUCTION")
+        return true
+        #endif
+    }()
+    
+    static func isProduction () -> Bool {
+        return self.production
+    }
+    
+}
+
 class SettingsViewController: FormViewController, Coordinator {
     var coordinators: [Coordinator] = []
 
@@ -98,9 +123,9 @@ class SettingsViewController: FormViewController, Coordinator {
 
             <<< networkRow()
 
-            <<< walletsRow(for: account.address)
-
             +++ Section(NSLocalizedString("settings.security.label.title", value: "Security", comment: ""))
+            
+            <<< walletsRow(for: account.address)
 
             <<< SwitchRow(Values.passcodeRow) { [weak self] in
                 $0.title = self?.viewModel.passcodeTitle
@@ -184,6 +209,9 @@ class SettingsViewController: FormViewController, Coordinator {
             $0.displayValueFor = { value in
                 return value?.displayName
             }
+            $0.hidden = Condition.function(["networkRow"], { form in
+                return Env.isProduction()
+            })
         }.onChange { [weak self] row in
             let server = row.value ?? RPCServer.ellaism
             self?.run(action: .RPCServer(server: server))
@@ -236,7 +264,7 @@ class SettingsViewController: FormViewController, Coordinator {
             selectorController.enableDeselection = false
             selectorController.sectionKeyForValue = { option in
                 switch option {
-                case .USD, .EUR, .GBP, .AUD, .RUB: return Values.currencyPopularKey
+                case .USD, .EUR, .GBP, .CAD, .AUD, .RUB: return Values.currencyPopularKey
                 default: return Values.currencyAllKey
                 }
             }
