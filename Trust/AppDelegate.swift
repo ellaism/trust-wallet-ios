@@ -1,5 +1,4 @@
 // Copyright SIX DAY LLC. All rights reserved.
-
 import UIKit
 import Lokalise
 //import Branch
@@ -14,6 +13,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }()
     let urlNavigatorCoordinator = URLNavigatorCoordinator()
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
+        //setenv("CFNETWORK_DIAGNOSTICS", "3", 1);
         window = UIWindow(frame: UIScreen.main.bounds)
 
         let keystore = EtherKeystore.shared
