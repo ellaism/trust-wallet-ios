@@ -23,10 +23,10 @@ public struct Constants {
     public static let supportEmail = "support@ellaism.org"
     public static let donationAddress = "0xEDae451f57B5bfF81d1D9eE64F591Ad6a865a652"
 
-    public static let dappsBrowserURL = "https://ellaism.org/dapps"
+    public static let dappsBrowserURL = "https://ellaism.github.io/trust-wallet-ios/dapps"
     public static let dappsOpenSea = "https://opensea.io"
 
-    public static let images = "https://ellaismimages.nonlocal.ca/images"
+    public static let images = "https://ellaism.github.io/trust-wallet-ios/images/"
 
     public static let trustAPI = URL(string: "https://ellaismwallet.nonlocal.ca")!
 }
