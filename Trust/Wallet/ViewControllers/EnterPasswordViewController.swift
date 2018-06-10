@@ -8,7 +8,7 @@ protocol EnterPasswordViewControllerDelegate: class {
     func didEnterPassword(password: String, for account: Account, in viewController: EnterPasswordViewController)
 }
 
-class EnterPasswordViewController: FormViewController {
+class EnterPasswordViewController: FormViewController, UITextFieldDelegate {
 
     struct Values {
         static var password = "password"
@@ -37,7 +37,7 @@ class EnterPasswordViewController: FormViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         title = viewModel.title
         navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(done))
 
@@ -62,6 +62,7 @@ class EnterPasswordViewController: FormViewController {
                 $0.add(rule: ruleMin)
                 $0.add(rule: RuleEqualsToRow(form: self.form, tag: Values.password, msg: self.viewModel.passwordNoMatch))
                 $0.validationOptions = .validatesOnDemand
+                $0.cell.textField?.delegate = self
             }.cellUpdate { [unowned self] cell, _ in
                 cell.textField.isSecureTextEntry = true
                 cell.textField.placeholder = self.viewModel.confirmPasswordFieldPlaceholder
@@ -74,6 +75,12 @@ class EnterPasswordViewController: FormViewController {
         super.viewWillAppear(animated)
 
         passwordRow?.cell.textField.becomeFirstResponder()
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        done()
+        return true
     }
 
     @objc func done() {
