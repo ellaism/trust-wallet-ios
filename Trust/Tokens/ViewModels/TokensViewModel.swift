@@ -83,6 +83,18 @@ class TokensViewModel: NSObject {
         let totalAmount = tokens.lazy.flatMap { [weak self] in
             self?.amount(for: $0)
         }.reduce(0, +)
+        
+        if config.currency.rawValue == "BTC" {
+            let nf = NumberFormatter()
+            nf.numberStyle = .decimal
+            nf.minimumIntegerDigits = 1
+            nf.minimumFractionDigits = 2
+            nf.maximumFractionDigits = 18
+            let res = nf.string(from: NSNumber(value: totalAmount))
+            if res != nil {
+                return res! + " BTC"
+            }
+        }
         return CurrencyFormatter.formatter.string(from: NSNumber(value: totalAmount))
     }
 
@@ -113,7 +125,7 @@ class TokensViewModel: NSObject {
 
     func cellViewModel(for path: IndexPath) -> TokenViewCellViewModel {
         let token = tokens[path.row]
-        return TokenViewCellViewModel(token: token, ticker: store.coinTicker(for: token))
+        return TokenViewCellViewModel(token: token, ticker: store.coinTicker(for: token), currency: config.currency)
     }
 
     func updateEthBalance() {

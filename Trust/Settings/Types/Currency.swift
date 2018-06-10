@@ -5,6 +5,7 @@ import UIKit
 enum Currency: String {
     case AUD
     case BRL
+    case BTC
     case CAD
     case CHF
     case CLP
@@ -69,6 +70,7 @@ enum Currency: String {
         TRY,
         TWD,
         ZAR,
+        BTC
     ]
 
     init(value: String) {

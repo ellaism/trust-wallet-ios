@@ -10,13 +10,16 @@ struct TokenViewCellViewModel {
 
     let token: TokenObject
     let ticker: CoinTicker?
+    let currency: Currency
 
     init(
         token: TokenObject,
-        ticker: CoinTicker?
+        ticker: CoinTicker?,
+        currency: Currency
     ) {
         self.token = token
         self.ticker = ticker
+        self.currency = currency
     }
 
     var title: String {
@@ -36,7 +39,7 @@ struct TokenViewCellViewModel {
     }
 
     var currencyAmount: String? {
-        return TokensLayout.cell.totalFiatAmount(for: ticker, token: token)
+        return TokensLayout.cell.totalFiatAmount(for: ticker, token: token, currency: currency)
     }
 
     var amountFont: UIFont {

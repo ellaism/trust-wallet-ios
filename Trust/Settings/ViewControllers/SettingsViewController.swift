@@ -146,23 +146,23 @@ class SettingsViewController: FormViewController, Coordinator {
 
             <<< autoLockRow
 
-//            <<< AppFormAppearance.button { [weak self] row in
-//                row.cellStyle = .value1
-//                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
-//                    let controller = NotificationsViewController()
-//                    controller.didChange = { [weak self] change in
-//                        self?.run(action: .pushNotifications(change))
-//                    }
-//                    return controller
-//                }, onDismiss: { _ in
-//            })
-//            }.cellUpdate { cell, _ in
-//                cell.imageView?.image = R.image.settings_colorful_notifications()
-//                cell.textLabel?.text = NSLocalizedString("settings.pushNotifications.title", value: "Push Notifications", comment: "")
-//                cell.accessoryType = .disclosureIndicator
-//            }
+            <<< AppFormAppearance.button { [weak self] row in
+                row.cellStyle = .value1
+                row.presentationMode = .show(controllerProvider: ControllerProvider<UIViewController>.callback {
+                    let controller = NotificationsViewController()
+                    controller.didChange = { [weak self] change in
+                        self?.run(action: .pushNotifications(change))
+                    }
+                    return controller
+                }, onDismiss: { _ in
+            })
+            }.cellUpdate { cell, _ in
+                cell.imageView?.image = R.image.settings_colorful_notifications()
+                cell.textLabel?.text = NSLocalizedString("settings.pushNotifications.title", value: "Push Notifications", comment: "")
+                cell.accessoryType = .disclosureIndicator
+            }
 
-            +++ Section()
+            +++ Section(NSLocalizedString("settings.customize.label.title", value: "Customize", comment: ""))
 
             <<< currencyRow()
             <<< browserRow()
@@ -254,7 +254,7 @@ class SettingsViewController: FormViewController, Coordinator {
             $0.value = self?.config.currency
             $0.displayValueFor = { value in
                 let currencyCode = value?.rawValue ?? ""
-                return currencyCode + " - " + (NSLocale.current.localizedString(forCurrencyCode: currencyCode) ?? "")
+                return currencyCode + " - " + (currencyCode == "BTC" ? "Bitcoin" : (NSLocale.current.localizedString(forCurrencyCode: currencyCode) ?? ""))
             }
         }.onChange { [weak self]  row in
             guard let value = row.value else { return }
@@ -264,7 +264,7 @@ class SettingsViewController: FormViewController, Coordinator {
             selectorController.enableDeselection = false
             selectorController.sectionKeyForValue = { option in
                 switch option {
-                case .USD, .EUR, .GBP, .CAD, .AUD, .RUB: return Values.currencyPopularKey
+                case .BTC, .USD, .EUR, .CAD, .RUB: return Values.currencyPopularKey
                 default: return Values.currencyAllKey
                 }
             }
