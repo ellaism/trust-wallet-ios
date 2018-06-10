@@ -65,14 +65,14 @@ class InCoordinator: Coordinator {
     }
 
     func start() {
-        showTabBar(for: initialWallet)
+        showTabBar(for: initialWallet, tab: Tabs.wallet(.none))
         checkDevice()
 
         helpUsCoordinator.start()
         addCoordinator(helpUsCoordinator)
     }
 
-    func showTabBar(for account: Wallet) {
+    func showTabBar(for account: Wallet, tab: Tabs) {
 
         let migration = MigrationInitializer(account: account, chainID: config.chainID)
         migration.perform()
@@ -162,7 +162,7 @@ class InCoordinator: Coordinator {
         navigationController.setNavigationBarHidden(true, animated: false)
         addCoordinator(transactionCoordinator)
 
-        showTab(.wallet(.none))
+        showTab(tab)
 
         keystore.recentlyUsedWallet = account
 
@@ -203,7 +203,7 @@ class InCoordinator: Coordinator {
         tabBarController?.selectedViewController = nav
     }
 
-    func restart(for account: Wallet, in coordinator: TransactionCoordinator) {
+    func restart(for account: Wallet, tab: Tabs, in coordinator: TransactionCoordinator) {
         settingsCoordinator?.rootViewController.navigationItem.leftBarButtonItem = nil
         settingsCoordinator?.rootViewController.networkStateView = nil
         localSchemeCoordinator?.delegate = nil
@@ -213,7 +213,7 @@ class InCoordinator: Coordinator {
         coordinator.stop()
         CookiesStore.delete()
         removeAllCoordinators()
-        //showTabBar(for: account)
+        showTabBar(for: account, tab: tab)
     }
 
     func checkDevice() {
@@ -300,9 +300,9 @@ extension InCoordinator: SettingsCoordinatorDelegate {
         delegate?.didCancel(in: self)
     }
 
-    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator) {
+    func didRestart(with account: Wallet, tab: Tabs, in coordinator: SettingsCoordinator) {
         guard let transactionCoordinator = transactionCoordinator else { return }
-        restart(for: account, in: transactionCoordinator)
+        restart(for: account, tab: tab, in: transactionCoordinator)
     }
 
     func didUpdateAccounts(in coordinator: SettingsCoordinator) {

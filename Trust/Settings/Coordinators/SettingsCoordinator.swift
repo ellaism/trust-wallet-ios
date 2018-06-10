@@ -7,7 +7,7 @@ import WebKit
 import RealmSwift
 
 protocol SettingsCoordinatorDelegate: class {
-    func didRestart(with account: Wallet, in coordinator: SettingsCoordinator)
+    func didRestart(with account: Wallet, tab: Tabs, in coordinator: SettingsCoordinator)
     func didUpdateAccounts(in coordinator: SettingsCoordinator)
     func didPressURL(_ url: URL, in coordinator: SettingsCoordinator)
     func didCancel(in coordinator: SettingsCoordinator)
@@ -78,8 +78,8 @@ class SettingsCoordinator: Coordinator {
         navigationController.viewControllers = [rootViewController]
     }
 
-    func restart(for wallet: Wallet) {
-        delegate?.didRestart(with: wallet, in: self)
+    func restart(for wallet: Wallet, tab: Tabs) {
+        delegate?.didRestart(with: wallet, tab: tab, in: self)
     }
 
     func cleadCache() {
@@ -127,7 +127,7 @@ class SettingsCoordinator: Coordinator {
     func switchNetwork(for server: RPCServer) {
         var config = session.config
         config.chainID = server.chainID
-        restart(for: session.account)
+        restart(for: session.account, tab: Tabs.settings)
     }
 }
 
@@ -137,7 +137,7 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         case .RPCServer(let server):
             prepareSwitchNetwork(for: server)
         case .currency:
-            restart(for: session.account)
+            restart(for: session.account, tab: Tabs.settings)
         case .pushNotifications(let change):
             switch change {
             case .state(let isEnabled):
@@ -180,6 +180,7 @@ extension SettingsCoordinator: AccountsCoordinatorDelegate {
     func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
-        restart(for: account)
+        restart(for: account, tab: Tabs.settings)
+        // showTab(.settings)
     }
 }
