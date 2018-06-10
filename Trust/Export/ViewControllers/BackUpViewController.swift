@@ -5,6 +5,7 @@ import TrustKeystore
 import UIKit
 
 protocol BackupViewControllerDelegate: class {
+    func didPressSkip(account: Account, in viewController: BackupViewController)
     func didPressBackup(account: Account, in viewController: BackupViewController)
 }
 
@@ -32,22 +33,34 @@ class BackupViewController: UIViewController {
 
         let controlMoneyLabel = UILabel()
         controlMoneyLabel.translatesAutoresizingMaskIntoConstraints = false
-        controlMoneyLabel.text = NSLocalizedString("export.controlYourMoney.label.title", value: "Since only you control your money, you must backup your wallet in case this app is deleted, or your device is lost.", comment: "")
+        controlMoneyLabel.text = NSLocalizedString("export.youMustBackup.label.title", value: "You must backup your wallet in case this app is deleted, or your device is lost.", comment: "")
         controlMoneyLabel.numberOfLines = 0
         controlMoneyLabel.textAlignment = .center
         controlMoneyLabel.textColor = Colors.darkGray
 
         let neverStoredLabel = UILabel()
         neverStoredLabel.translatesAutoresizingMaskIntoConstraints = false
-        neverStoredLabel.text = NSLocalizedString("export.neverStored.label.title", value: "Your wallet is never saved to cloud storage or standard device backups.", comment: "")
+        neverStoredLabel.text = NSLocalizedString("export.thisStepImportant.label.title", value: "This step is important since your wallet will not be included in standard device backups.", comment: "")
         neverStoredLabel.numberOfLines = 0
         neverStoredLabel.textAlignment = .center
         neverStoredLabel.textColor = Colors.darkGray
+        
+        let backupLaterLabel = UILabel()
+        backupLaterLabel.translatesAutoresizingMaskIntoConstraints = false
+        backupLaterLabel.text = NSLocalizedString("export.backupLater.label.title", value: "You can backup your wallet later from the Settings page.", comment: "")
+        backupLaterLabel.numberOfLines = 0
+        backupLaterLabel.textAlignment = .center
+        backupLaterLabel.textColor = Colors.darkGray
 
         let backupButton = Button(size: .large, style: .solid)
         backupButton.translatesAutoresizingMaskIntoConstraints = false
         backupButton.setTitle(NSLocalizedString("export.backup.button.title", value: "Backup Wallet", comment: ""), for: .normal)
         backupButton.addTarget(self, action: #selector(backup), for: .touchUpInside)
+        
+        let skipButton = Button(size: .large, style: .borderless)
+        skipButton.translatesAutoresizingMaskIntoConstraints = false
+        skipButton.setTitle(NSLocalizedString("export.dothislater.button.title", value: "I'll do this later", comment: ""), for: .normal)
+        skipButton.addTarget(self, action: #selector(skip), for: .touchUpInside)
 
         let stackView = UIStackView(
             arrangedSubviews: [
@@ -57,8 +70,10 @@ class BackupViewController: UIViewController {
                 .spacer(height: 15),
                 controlMoneyLabel,
                 neverStoredLabel,
+                backupLaterLabel,
                 .spacer(height: 15),
                 backupButton,
+                skipButton
             ]
         )
         stackView.axis = .vertical
@@ -79,6 +94,10 @@ class BackupViewController: UIViewController {
             backupButton.leadingAnchor.constraint(equalTo: stackView.leadingAnchor),
             backupButton.trailingAnchor.constraint(equalTo: stackView.trailingAnchor),
         ])
+    }
+    
+    @objc func skip() {
+        delegate?.didPressSkip(account: account, in: self)
     }
 
     @objc func backup() {
