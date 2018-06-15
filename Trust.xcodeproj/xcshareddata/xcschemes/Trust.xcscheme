@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "0920"
+   LastUpgradeVersion = "0940"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-               BuildableName = "Trust.app"
+               BuildableName = "Ellaism Wallet.app"
                BlueprintName = "Trust"
                ReferencedContainer = "container:Trust.xcodeproj">
             </BuildableReference>
@@ -53,7 +53,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "Trust.app"
+            BuildableName = "Ellaism Wallet.app"
             BlueprintName = "Trust"
             ReferencedContainer = "container:Trust.xcodeproj">
          </BuildableReference>
@@ -76,11 +76,18 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "Trust.app"
+            BuildableName = "Ellaism Wallet.app"
             BlueprintName = "Trust"
             ReferencedContainer = "container:Trust.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "forceProduction"
+            value = "true"
+            isEnabled = "NO">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
       <LocationScenarioReference
@@ -99,7 +106,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "2912CCF41F6A830700C6CBE3"
-            BuildableName = "Trust.app"
+            BuildableName = "Ellaism Wallet.app"
             BlueprintName = "Trust"
             ReferencedContainer = "container:Trust.xcodeproj">
          </BuildableReference>
