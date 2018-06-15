@@ -92,10 +92,6 @@ class WalletCoordinator: Coordinator {
         addCoordinator(coordinator)
         coordinator.start()
     }
-    
-    func skip(account: Wallet) {
-        delegate?.didFinish(with: account, in: self)
-    }
 }
 
 extension WalletCoordinator: WelcomeViewControllerDelegate {
@@ -117,9 +113,6 @@ extension WalletCoordinator: ImportWalletViewControllerDelegate {
 extension WalletCoordinator: BackupViewControllerDelegate {
     func didPressBackup(account: Account, in viewController: BackupViewController) {
         backup(account: account)
-    }
-    func didPressSkip(account: Account, in viewController: BackupViewController) {
-        skip(account: Wallet(type: .privateKey(account)))
     }
 }
 

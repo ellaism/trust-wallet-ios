@@ -5,7 +5,6 @@ import TrustKeystore
 import UIKit
 
 protocol BackupViewControllerDelegate: class {
-    func didPressSkip(account: Account, in viewController: BackupViewController)
     func didPressBackup(account: Account, in viewController: BackupViewController)
 }
 
@@ -40,14 +39,14 @@ class BackupViewController: UIViewController {
 
         let neverStoredLabel = UILabel()
         neverStoredLabel.translatesAutoresizingMaskIntoConstraints = false
-        neverStoredLabel.text = NSLocalizedString("export.thisStepImportant.label.title", value: "This step is important since your wallet will not be included in standard device backups.", comment: "")
+        neverStoredLabel.text = NSLocalizedString("export.thisStepImportant.label.title", value: "This step is important since your wallet will not be included in  standard device backups.", comment: "")
         neverStoredLabel.numberOfLines = 0
         neverStoredLabel.textAlignment = .center
         neverStoredLabel.textColor = Colors.darkGray
         
         let backupLaterLabel = UILabel()
         backupLaterLabel.translatesAutoresizingMaskIntoConstraints = false
-        backupLaterLabel.text = NSLocalizedString("export.backupLater.label.title", value: "You can backup your wallet later from the Settings page.", comment: "")
+        backupLaterLabel.text = NSLocalizedString("export.backupLost.label.title", value: "If your backup wallet is lost or damaged, you can take another backup from the Settings page.", comment: "")
         backupLaterLabel.numberOfLines = 0
         backupLaterLabel.textAlignment = .center
         backupLaterLabel.textColor = Colors.darkGray
@@ -57,11 +56,6 @@ class BackupViewController: UIViewController {
         backupButton.setTitle(NSLocalizedString("export.backup.button.title", value: "Backup Wallet", comment: ""), for: .normal)
         backupButton.addTarget(self, action: #selector(backup), for: .touchUpInside)
         
-        let skipButton = Button(size: .large, style: .borderless)
-        skipButton.translatesAutoresizingMaskIntoConstraints = false
-        skipButton.setTitle(NSLocalizedString("export.dothislater.button.title", value: "I'll do this later", comment: ""), for: .normal)
-        skipButton.addTarget(self, action: #selector(skip), for: .touchUpInside)
-
         let stackView = UIStackView(
             arrangedSubviews: [
                 warningImageView,
@@ -72,8 +66,7 @@ class BackupViewController: UIViewController {
                 neverStoredLabel,
                 backupLaterLabel,
                 .spacer(height: 15),
-                backupButton,
-                skipButton
+                backupButton
             ]
         )
         stackView.axis = .vertical
@@ -96,10 +89,6 @@ class BackupViewController: UIViewController {
         ])
     }
     
-    @objc func skip() {
-        delegate?.didPressSkip(account: account, in: self)
-    }
-
     @objc func backup() {
         delegate?.didPressBackup(account: account, in: self)
     }
