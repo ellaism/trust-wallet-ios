@@ -3,9 +3,9 @@
 import Foundation
 
 public struct Constants {
-    public static let coinbaseWidgetCode = "88d6141a-ff60-536c-841c-8f830adaacfd"
-    public static let shapeShiftPublicKey = "c4097b033e02163da6114fbbc1bf15155e759ddfd8352c88c55e7fef162e901a800e7eaecf836062a0c075b2b881054e0b9aa2324be7bc3694578493faf59af4"
-    public static let changellyRefferalID = "968d4f0f0bf9"
+    public static let coinbaseWidgetCode = ""
+    public static let shapeShiftPublicKey = ""
+    public static let changellyRefferalID = ""
     //
     public static let keychainKeyPrefix = "ellawallet"
 
@@ -20,15 +20,15 @@ public struct Constants {
     public static let githubUrl = "https://github.com/ellaism"
 
     // support
-    public static let supportEmail = "support@ellaism.org"
-    public static let donationAddress = "0xEDae451f57B5bfF81d1D9eE64F591Ad6a865a652"
+    public static let supportEmail = "support@outdoordevs.com"
+    public static let donationAddress = "0xe9C2d958E6234c862b4AfBD75b2fd241E9556303"
 
     public static let dappsBrowserURL = "https://ellaism.github.io/trust-wallet-ios/dapps/index"
-    public static let dappsOpenSea = "https://opensea.io"
+    public static let dappsOpenSea = ""
 
     public static let images = "https://ellaism.github.io/trust-wallet-ios/images/"
 
-    public static let trustAPI = URL(string: "https://ellaismwallet.nonlocal.ca")!
+    public static let trustAPI = URL(string: "https://trustray.outdoordevs.com")!
 }
 
 public struct UnitConfiguration {
