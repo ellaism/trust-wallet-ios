@@ -1,5 +1,5 @@
 "Advanced" = "Advanced";
-"app.device.jailbreak.description" = "Any 'jailbreak' app can access Trust's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
+"app.device.jailbreak.description" = "Any 'jailbreak' app can access Ellaism Wallet's keychain data and steal your wallet! Wipe this wallet immediately and restore on a secure device.";
 "app.device.jailbreak.title" = "DEVICE SECURITY COMPROMISED";
 "Cancel" = "Cancel";
 "configureTransaction.error.gasFeeTooHigh" = "Gas Fee too high. Max available: %@";
@@ -56,7 +56,7 @@
 "settings.donate.button.title" = "Donate";
 "settings.emailUs.button.title" = "Email Us";
 "settings.error.failedToSendEmail" = "Failed to send email. Make sure you have Mail app installed.";
-"settings.feedback.email.title" = "Trust Feedback";
+"settings.feedback.email.title" = "Ellaism Wallet Feedback";
 "settings.navigation.title" = "Settings";
 "settings.network.button.title" = "Network";
 "settings.openSourceDevelopment.label.title" = "Open Source Development";
@@ -82,7 +82,7 @@
 "welcome.importWallet.button.title" = "IMPORT WALLET";
 "welcome.privateAndSecure.label.description" = "Private keys never leave your device.";
 "welcome.privateAndSecure.label.title" = "Private & Secure";
-"welcome.ultraReliable.label.description" = "The fastest Ethereum wallet experience on mobile";
+"welcome.ultraReliable.label.description" = "The fastest Ellaism wallet experience on mobile";
 "welcome.ultraReliable.label.title" = "Ultra Reliable";
 "tokens.navigation.title" = "Tokens";
 "tokens.tabbar.item.title" = "Tokens";
@@ -120,7 +120,7 @@
 "transaction.cell.tokenTransfer.title" = "Transfer %@";
 "Yesterday" = "Yesterday";
 "Deleting" = "Deleting";
-"Ethereum Address" = "Ethereum Address";
+"Ellaism Address" = "Ellaism Address";
 "InCoordinatorError.onlyWatchAccount" = "This wallet can be only used for watching. Import Private Key/Keystore to sign transactions/messages";
 "Mnemonic" = "Mnemonic";
 "passphrase.remember.label.title" = "Write this down, and keep it private and secure. You won't be able to restore your wallet if you lose this!";
@@ -131,9 +131,9 @@
 "welldone.navigation.title" = "Thank you!";
 "welldone.share.label.text" = "Share";
 "welldone.viewmodel.sharing.text1" = "Here is the app I use to store my ETH and ERC20 tokens.";
-"welldone.viewmodel.sharing.text2" = "Check out Trust - the wallet that lets me securely store my Ethereum and ERC20 tokens.";
-"welldone.viewmodel.sharing.text3" = "I securely store Ethereum and ERC20 tokens in the Trust wallet";
-"welldone.viewmodel.sharing.text4" = "I secure my Ethereum and ERC20 tokens in the Trust wallet.";
+"welldone.viewmodel.sharing.text2" = "Check out Ellaism Wallet - the wallet that lets me securely store my Ellaism and ERC20 tokens.";
+"welldone.viewmodel.sharing.text3" = "I securely store Ellaism and ERC20 tokens in the Ellaism wallet";
+"welldone.viewmodel.sharing.text4" = "I secure my Ellaism and ERC20 tokens in the Ellaism wallet.";
 "browser.home.button.title" = "Home";
 "browser.reload.button.title" = "Reload";
 "configureTransaction.gasPriceGwei.label.title" = "Gas Price (Gwei)";
