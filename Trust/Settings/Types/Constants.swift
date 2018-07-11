@@ -26,7 +26,7 @@ public struct Constants {
     public static let dappsBrowserURL = "https://ellaism.github.io/trust-wallet-ios/dapps/index"
     public static let dappsOpenSea = ""
 
-    public static let images = "https://ellaism.github.io/trust-wallet-ios/images/"
+    public static let images = "https://ellaism.github.io/trust-wallet-ios/images"
 
     public static let trustAPI = URL(string: "https://trustray.outdoordevs.com")!
 }
