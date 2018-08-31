@@ -1,16 +1,19 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import JSONRPCKit
 import APIKit
 import BigInt
 import Result
+import TrustCore
 
-class GetNonceProvider: NonceProvider {
+final class GetNonceProvider: NonceProvider {
     let storage: TransactionsStorage
+    let server: RPCServer
+    let address: Address
     var remoteNonce: BigInt? = .none
     var latestNonce: BigInt? {
-        guard let nonce = storage.latestTransaction?.nonce else {
+        guard let nonce = storage.latestTransaction(for: address, coin: server.coin)?.nonce else {
             return .none
         }
         let remoteNonceInt = remoteNonce ?? BigInt(-1)
@@ -29,9 +32,13 @@ class GetNonceProvider: NonceProvider {
     }
 
     init(
-        storage: TransactionsStorage
+        storage: TransactionsStorage,
+        server: RPCServer,
+        address: Address
     ) {
         self.storage = storage
+        self.server = server
+        self.address = address
 
         fetchLatestNonce()
     }
@@ -48,10 +55,12 @@ class GetNonceProvider: NonceProvider {
     }
 
     func fetchNextNonce(completion: @escaping (Result<BigInt, AnyError>) -> Void) {
-        fetch { result in
+        fetch { [weak self] result in
+            guard let `self` = self else { return }
             switch result {
             case .success(let nonce):
-                completion(.success(nonce + 1))
+                let res = self.nextNonce ?? nonce + 1
+                completion(.success(res))
             case .failure(let error):
                 completion(.failure(error))
             }
@@ -59,8 +68,8 @@ class GetNonceProvider: NonceProvider {
     }
 
     func fetch(completion: @escaping (Result<BigInt, AnyError>) -> Void) {
-        let request = EtherServiceRequest(batch: BatchFactory().create(GetTransactionCountRequest(
-            address: storage.account.address.description,
+        let request = EtherServiceRequest(for: server, batch: BatchFactory().create(GetTransactionCountRequest(
+            address: address.description,
             state: "latest"
         )))
         Session.send(request) { [weak self] result in

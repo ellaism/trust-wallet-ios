@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
@@ -15,7 +15,11 @@ struct SettingsViewModel {
     var servers: [RPCServer] {
         return [
             RPCServer.ellaism,
-            RPCServer.shikinseki,
+            RPCServer.main,
+            RPCServer.classic,
+            RPCServer.poa,
+            RPCServer.callisto,
+            RPCServer.gochain,
         ]
     }
 

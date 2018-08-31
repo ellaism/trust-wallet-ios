@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustCore
@@ -17,8 +17,8 @@ enum Errors: LocalizedError {
     }
 }
 
-extension Address {
-    static var zero: Address {
-        return Address(string: "0x0000000000000000000000000000000000000000")!
+extension EthereumAddress {
+    static var zero: EthereumAddress {
+        return EthereumAddress(string: "0x0000000000000000000000000000000000000000")!
     }
 }

@@ -1,7 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
+import Rswift
 
 enum URLServiceProvider {
     case twitter
@@ -11,7 +12,9 @@ enum URLServiceProvider {
     case bitcointalk
     case reddit
     case github
-
+    case sourceCode
+    case privacyPolicy
+    case termsOfService
     var title: String {
         switch self {
         case .twitter: return "Twitter"
@@ -21,7 +24,10 @@ enum URLServiceProvider {
         case .reddit: return "Reddit"
         case .bitcointalk: return "Bitcoin Talk"
         case .github: return "GitHub"
-        }
+        case .sourceCode: return R.string.localizable.settingsSourceCodeButtonTitle()
+        case .privacyPolicy: return R.string.localizable.settingsPrivacyTitle()
+        case .termsOfService: return R.string.localizable.settingsTermsOfServiceButtonTitle()
+       }
     }
 
     var localURL: URL? {
@@ -29,7 +35,7 @@ enum URLServiceProvider {
         case .twitter:
             return URL(string: "twitter://user?screen_name=\(Constants.twitterUsername)")!
         case .telegram:
-            return URL(string: "tg://resolve?domain=\(Constants.telegramUsername)")
+            return URL(string: "tg://resolve?domain=\(preferredTelegramUsername())")
         case .facebook:
             return URL(string: "fb://profile?id=\(Constants.facebookUsername)")
         case .discord:
@@ -40,6 +46,9 @@ enum URLServiceProvider {
             return URL(string: Constants.redditUrl)
         case .github:
             return URL(string: Constants.githubUrl)
+        case .sourceCode: return nil
+        case .privacyPolicy: return nil
+        case .termsOfService: return nil
         }
     }
 
@@ -52,7 +61,7 @@ enum URLServiceProvider {
         case .twitter:
             return "https://twitter.com/\(Constants.twitterUsername)"
         case .telegram:
-            return "https://telegram.me/\(Constants.telegramUsername)"
+            return "https://telegram.me/\(preferredTelegramUsername())"
         case .facebook:
             return "https://www.facebook.com/\(Constants.facebookUsername)"
         case .discord:
@@ -63,6 +72,12 @@ enum URLServiceProvider {
             return Constants.githubUrl
         case .bitcointalk:
             return Constants.bitcoinTalkUrl
+        case .sourceCode:
+            return "https://github.com/TrustWallet/trust-wallet-ios"
+        case .privacyPolicy:
+            return "https://trustwalletapp.com/privacy-policy.html"
+        case .termsOfService:
+            return "https://trustwalletapp.com/terms.html"
         }
     }
 
@@ -75,6 +90,14 @@ enum URLServiceProvider {
         case .bitcointalk: return R.image.settings_colorful_bitcointalk()
         case .reddit: return R.image.settings_colorful_reddit()
         case .github: return R.image.settings_colorful_github()
+        case .sourceCode: return nil
+        case .privacyPolicy: return nil
+        case .termsOfService: return nil
         }
+    }
+
+    private func preferredTelegramUsername() -> String {
+        let languageCode = NSLocale.preferredLanguageCode ?? ""
+        return Constants.localizedTelegramUsernames[languageCode] ?? Constants.telegramUsername
     }
 }

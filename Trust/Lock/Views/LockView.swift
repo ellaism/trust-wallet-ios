@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class LockView: UIView {
+final class LockView: UIView {
     var characterView = UIStackView()
     var lockTitle = UILabel()
     var model: LockViewModel!
@@ -28,6 +28,7 @@ class LockView: UIView {
         lockTitle.font = UIFont.systemFont(ofSize: 19)
         lockTitle.textAlignment = .center
         lockTitle.translatesAutoresizingMaskIntoConstraints = false
+        lockTitle.numberOfLines = 0
     }
     private func applyConstraints() {
         characterView.centerXAnchor.constraint(equalTo: self.centerXAnchor).isActive = true

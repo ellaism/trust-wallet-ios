@@ -1,19 +1,15 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
+import TrustCore
 
 struct Config {
 
-    struct Keys {
-        static let chainID = "chainID"
-        static let isCryptoPrimaryCurrency = "isCryptoPrimaryCurrency"
-        static let isDebugEnabled = "isDebugEnabled"
+    private struct Keys {
         static let currencyID = "currencyID"
-        static let dAppBrowser = "dAppBrowser"
-        static let testNetworkWarningOff = "testNetworkWarningOff"
     }
 
-    static let dbMigrationSchemaVersion: UInt64 = 53
+    static let dbMigrationSchemaVersion: UInt64 = 77
 
     static let current: Config = Config()
 
@@ -44,26 +40,14 @@ struct Config {
         set { defaults.set(newValue.rawValue, forKey: Keys.currencyID) }
     }
 
-    var chainID: Int {
-        get {
-            let id = defaults.integer(forKey: Keys.chainID)
-            guard id > 0 else { return RPCServer.ellaism.chainID }
-            return id
-        }
-        set { defaults.set(newValue, forKey: Keys.chainID) }
-    }
-
-    var isCryptoPrimaryCurrency: Bool {
-        get { return defaults.bool(forKey: Keys.isCryptoPrimaryCurrency) }
-        set { defaults.set(newValue, forKey: Keys.isCryptoPrimaryCurrency) }
-    }
-
-    var server: RPCServer {
-        return RPCServer(chainID: chainID)
-    }
-
-    var testNetworkWarningOff: Bool {
-        get { return defaults.bool(forKey: Keys.testNetworkWarningOff) }
-        set { defaults.set(newValue, forKey: Keys.testNetworkWarningOff) }
+    var servers: [Coin] {
+        return [
+            Coin.ellaism,
+            Coin.ethereum,
+            Coin.ethereumClassic,
+            Coin.poa,
+            Coin.callisto,
+            Coin.gochain,
+        ]
     }
 }

@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class SplashView: UIView {
+final class SplashView: UIView {
     init() {
         super.init(frame: CGRect.zero)
         self.backgroundColor = .white

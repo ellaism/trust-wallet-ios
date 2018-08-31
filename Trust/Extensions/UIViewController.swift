@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -11,24 +11,17 @@ enum ConfirmationError: LocalizedError {
 }
 
 extension UIViewController {
-    func displaySuccess(title: String? = .none, message: String? = .none) {
-        let alertController = UIAlertController(title: title, message: message, preferredStyle: UIAlertControllerStyle.alert)
-        alertController.popoverPresentationController?.sourceView = self.view
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", value: "OK", comment: ""), style: UIAlertActionStyle.default, handler: nil))
-        present(alertController, animated: true, completion: nil)
-    }
-
     func displayError(error: Error) {
         let alertController = UIAlertController(title: error.prettyError, message: "", preferredStyle: UIAlertControllerStyle.alert)
         alertController.popoverPresentationController?.sourceView = self.view
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("OK", value: "OK", comment: ""), style: UIAlertActionStyle.default, handler: nil))
+        alertController.addAction(UIAlertAction(title: R.string.localizable.oK(), style: UIAlertActionStyle.default, handler: nil))
         present(alertController, animated: true, completion: nil)
     }
 
     func confirm(
         title: String? = .none,
         message: String? = .none,
-        okTitle: String = NSLocalizedString("OK", value: "OK", comment: ""),
+        okTitle: String = R.string.localizable.oK(),
         okStyle: UIAlertActionStyle = .default,
         completion: @escaping (Result<Void, ConfirmationError>) -> Void
     ) {
@@ -37,7 +30,7 @@ extension UIViewController {
         alertController.addAction(UIAlertAction(title: okTitle, style: okStyle, handler: { _ in
             completion(.success(()))
         }))
-        alertController.addAction(UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel, handler: { _ in
+        alertController.addAction(UIAlertAction(title: R.string.localizable.cancel(), style: .cancel, handler: { _ in
             completion(.failure(ConfirmationError.cancel))
         }))
         self.present(alertController, animated: true, completion: nil)
@@ -74,5 +67,12 @@ extension UIViewController {
         viewController.willMove(toParentViewController: nil)
         viewController.view.removeFromSuperview()
         viewController.removeFromParentViewController()
+    }
+
+    func showShareActivity(from sender: UIView, with items: [Any], completion: (() -> Swift.Void)? = nil) {
+        let activityViewController = UIActivityViewController.make(items: items)
+        activityViewController.popoverPresentationController?.sourceView = sender
+        activityViewController.popoverPresentationController?.sourceRect = sender.centerRect
+        present(activityViewController, animated: true, completion: completion)
     }
 }

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -10,7 +10,7 @@ protocol BrowserConfigurationViewControllerDelegate: class {
     func didPressDeleteCache(in controller: BrowserConfigurationViewController)
 }
 
-class BrowserConfigurationViewController: FormViewController {
+final class BrowserConfigurationViewController: FormViewController {
 
     let viewModel = BrowserConfigurationViewModel()
     let preferences: PreferencesController
@@ -52,24 +52,28 @@ class BrowserConfigurationViewController: FormViewController {
             guard let `self` = self else { return }
             $0.title = self.viewModel.clearBrowserCacheTitle
         }.onCellSelection { [weak self] _, _ in
-            guard let `self` = self else { return }
-            self.confirm(
-                title: self.viewModel.clearBrowserCacheConfirmTitle,
-                message: self.viewModel.clearBrowserCacheConfirmMessage,
-                okTitle: NSLocalizedString("Delete", value: "Delete", comment: ""),
-                okStyle: .destructive,
-                completion: { [weak self] result in
-                    guard let `self` = self else { return }
-                    switch result {
-                    case .success:
-                        self.delegate?.didPressDeleteCache(in: self)
-                    case .failure: break
-                    }
-            })
+            self?.confirmClear()
         }.cellUpdate { cell, _ in
             cell.textLabel?.textAlignment = .left
             cell.textLabel?.textColor = .black
         }
+    }
+
+    private func confirmClear() {
+        confirm(
+            title: viewModel.clearBrowserCacheConfirmTitle,
+            message: viewModel.clearBrowserCacheConfirmMessage,
+            okTitle: R.string.localizable.delete(),
+            okStyle: .destructive,
+            completion: { [weak self] result in
+                guard let `self` = self else { return }
+                switch result {
+                case .success:
+                    self.delegate?.didPressDeleteCache(in: self)
+                case .failure: break
+                }
+            }
+        )
     }
 
     required init?(coder aDecoder: NSCoder) {

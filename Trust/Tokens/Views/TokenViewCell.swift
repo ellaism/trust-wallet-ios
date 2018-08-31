@@ -1,10 +1,12 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 import Kingfisher
+import RealmSwift
+import TrustCore
 
-class TokenViewCell: UITableViewCell {
+final class TokenViewCell: UITableViewCell {
 
     static let identifier = "TokenViewCell"
 
@@ -12,11 +14,20 @@ class TokenViewCell: UITableViewCell {
     let amountLabel = UILabel()
     let currencyAmountLabel = UILabel()
     let symbolImageView = TokenImageView()
-    let percentChange = UILabel()
+    let containerForImageView = UIView()
+    private var pendingTokenTransactionsObserver: NotificationToken?
 
-    private struct Layout {
-        static let stackVericalOffset: CGFloat = 10
-    }
+    lazy var marketPrice: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+
+    lazy var marketPercentageChange: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
 
     override init(style: UITableViewCellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -29,31 +40,38 @@ class TokenViewCell: UITableViewCell {
         symbolImageView.translatesAutoresizingMaskIntoConstraints = false
         symbolImageView.contentMode = .scaleAspectFit
 
-        percentChange.translatesAutoresizingMaskIntoConstraints = false
-        percentChange.textAlignment = .right
-
         amountLabel.translatesAutoresizingMaskIntoConstraints = false
         amountLabel.textAlignment = .right
+
+        containerForImageView.translatesAutoresizingMaskIntoConstraints = false
 
         currencyAmountLabel.translatesAutoresizingMaskIntoConstraints = false
         currencyAmountLabel.textAlignment = .right
 
-        let leftStackView = UIStackView(arrangedSubviews: [titleLabel])
+        let marketPriceStackView = UIStackView(arrangedSubviews: [
+            marketPrice,
+            marketPercentageChange,
+        ])
+
+        containerForImageView.addSubview(symbolImageView)
+
+        marketPriceStackView.translatesAutoresizingMaskIntoConstraints = false
+        marketPriceStackView.alignment = .firstBaseline
+        marketPriceStackView.distribution = .equalSpacing
+        marketPriceStackView.spacing = TokensLayout.cell.arrangedSubviewsOffset
+
+        let leftStackView = UIStackView(arrangedSubviews: [titleLabel, marketPriceStackView])
         leftStackView.translatesAutoresizingMaskIntoConstraints = false
         leftStackView.axis = .vertical
-        leftStackView.spacing = 12
+        leftStackView.spacing = 6
+        leftStackView.alignment = .leading
 
-        let rightBottomStackView = UIStackView(arrangedSubviews: [currencyAmountLabel, percentChange])
-        rightBottomStackView.translatesAutoresizingMaskIntoConstraints = false
-        rightBottomStackView.axis = .horizontal
-        rightBottomStackView.spacing = 5
-
-        let rightStackView = UIStackView(arrangedSubviews: [amountLabel, rightBottomStackView])
+        let rightStackView = UIStackView(arrangedSubviews: [amountLabel, currencyAmountLabel])
         rightStackView.translatesAutoresizingMaskIntoConstraints = false
         rightStackView.axis = .vertical
-        rightStackView.spacing =  5
+        rightStackView.spacing = TokensLayout.cell.arrangedSubviewsOffset
 
-        let stackView = UIStackView(arrangedSubviews: [symbolImageView, leftStackView, rightStackView])
+        let stackView = UIStackView(arrangedSubviews: [containerForImageView, leftStackView, rightStackView])
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .horizontal
         stackView.spacing = 15
@@ -69,19 +87,23 @@ class TokenViewCell: UITableViewCell {
         contentView.addSubview(stackView)
 
         NSLayoutConstraint.activate([
+            containerForImageView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: TokensLayout.cell.stackVericalOffset),
+            containerForImageView.widthAnchor.constraint(equalToConstant: TokensLayout.cell.imageSize),
+            containerForImageView.heightAnchor.constraint(equalToConstant: TokensLayout.cell.imageSize),
+            symbolImageView.centerXAnchor.constraint(equalTo: containerForImageView.centerXAnchor),
+            symbolImageView.centerYAnchor.constraint(equalTo: containerForImageView.centerYAnchor),
             symbolImageView.widthAnchor.constraint(equalToConstant: TokensLayout.cell.imageSize),
             symbolImageView.heightAnchor.constraint(equalToConstant: TokensLayout.cell.imageSize),
-            stackView.topAnchor.constraint(equalTo: contentView.topAnchor, constant: Layout.stackVericalOffset),
-            stackView.trailingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.trailingAnchor),
-            stackView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -Layout.stackVericalOffset),
-            stackView.leadingAnchor.constraint(equalTo: contentView.layoutMarginsGuide.leadingAnchor),
+            stackView.topAnchor.constraint(equalTo: topAnchor, constant: TokensLayout.cell.stackVericalOffset),
+            stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -TokensLayout.cell.stackVericalOffset),
+            stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -TokensLayout.cell.stackVericalOffset),
+            stackView.leadingAnchor.constraint(equalTo: containerForImageView.leadingAnchor),
         ])
+    }
 
-        separatorInset = UIEdgeInsets(
-            top: 0,
-            left: TokensLayout.tableView.layoutInsets.left - contentView.layoutInsets.left - layoutInsets.left,
-            bottom: 0, right: 0
-        )
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        updateSeparatorInset()
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -89,6 +111,8 @@ class TokenViewCell: UITableViewCell {
     }
 
     func configure(viewModel: TokenViewCellViewModel) {
+
+        containerForImageView.badge(text: badgeText(for: viewModel.viewModel.token, in: viewModel.store))
 
         titleLabel.text = viewModel.title
         titleLabel.textColor = viewModel.titleTextColor
@@ -98,19 +122,56 @@ class TokenViewCell: UITableViewCell {
         amountLabel.textColor = TokensLayout.cell.amountTextColor
         amountLabel.font = viewModel.amountFont
 
+        marketPrice.text = viewModel.marketPrice
+        marketPrice.textColor = viewModel.marketPriceTextColor
+        marketPrice.font = viewModel.marketPriceFont
+
+        marketPercentageChange.text = viewModel.percentChange
+        marketPercentageChange.textColor = viewModel.percentChangeColor
+        marketPercentageChange.font = viewModel.percentChangeFont
+
         currencyAmountLabel.text = viewModel.currencyAmount
         currencyAmountLabel.textColor = TokensLayout.cell.currencyAmountTextColor
         currencyAmountLabel.font = viewModel.currencyAmountFont
 
-        percentChange.text = viewModel.percentChange
-        percentChange.textColor = viewModel.percentChangeColor
-        percentChange.font = viewModel.percentChangeFont
-
         symbolImageView.kf.setImage(
-            with: viewModel.imageUrl,
+            with: viewModel.imageURL,
             placeholder: viewModel.placeholderImage
         )
 
         backgroundColor = viewModel.backgroundColor
+        observePendingTransactions(from: viewModel.store, with: viewModel.viewModel.token)
+    }
+
+    private func updateSeparatorInset() {
+        separatorInset = UIEdgeInsets(
+            top: 0,
+            left: layoutInsets.left + TokensLayout.cell.stackVericalOffset + TokensLayout.cell.imageSize +  TokensLayout.cell.stackVericalOffset +  TokensLayout.cell.arrangedSubviewsOffset,
+            bottom: 0, right: 0
+        )
+    }
+
+    private func observePendingTransactions(from storage: TransactionsStorage, with token: TokenObject) {
+        pendingTokenTransactionsObserver = storage.transactions.observe { [weak self] _ in
+            guard let `self` = self else { return }
+            self.containerForImageView.badge(text: self.badgeText(for: token, in: storage))
+        }
+    }
+
+    func badgeText(for token: TokenObject, in storage: TransactionsStorage) -> String? {
+        let items = storage.pendingObjects.filter {
+            switch token.type {
+            case .coin:
+                return $0.coin == token.coin && $0.localizedOperations.isEmpty
+            case .ERC20:
+                return $0.contractAddress == token.contractAddress
+            }
+        }
+        return items.isEmpty ? .none : String(items.count)
+    }
+
+    deinit {
+        pendingTokenTransactionsObserver?.invalidate()
+        pendingTokenTransactionsObserver = nil
     }
 }

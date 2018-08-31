@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -6,11 +6,10 @@ import StackViewController
 import Kingfisher
 
 protocol NFTokenViewControllerDelegate: class {
-    func didPressToken(token: NonFungibleTokenObject, in viewController: NFTokenViewController)
     func didPressLink(url: URL, in viewController: NFTokenViewController)
 }
 
-class NFTokenViewController: UIViewController {
+final class NFTokenViewController: UIViewController {
 
     lazy var scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -35,7 +34,8 @@ class NFTokenViewController: UIViewController {
         return sendButton
     }()
 
-    let token: NonFungibleTokenObject
+    let token: CollectibleTokenObject
+    let server: RPCServer
 
     lazy var imageView: UIImageView = {
         let imageView = UIImageView()
@@ -49,12 +49,13 @@ class NFTokenViewController: UIViewController {
     }()
 
     lazy var viewModel: NFTDetailsViewModel = {
-        return NFTDetailsViewModel(token: token)
+        return NFTDetailsViewModel(token: token, server: server)
     }()
     weak var delegate: NFTokenViewControllerDelegate?
 
-    init(token: NonFungibleTokenObject) {
+    init(token: CollectibleTokenObject, server: RPCServer) {
         self.token = token
+        self.server = server
         super.init(nibName: nil, bundle: nil)
 
         self.view.addSubview(scrollView)
@@ -98,13 +99,11 @@ class NFTokenViewController: UIViewController {
         stackView.addArrangedSubview(.spacer(height: 10))
 
         NSLayoutConstraint.activate([
-           // scrollView.topAnchor.constraint(equalTo: view.topAnchor),
             scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 100),
             scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
             scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             imageView.heightAnchor.constraint(equalToConstant: 260),
-            stackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             stackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
             stackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             stackView.leadingAnchor.constraint(equalTo: view.readableContentGuide.leadingAnchor),
@@ -113,7 +112,7 @@ class NFTokenViewController: UIViewController {
     }
 
     @objc func sendTap() {
-        delegate?.didPressToken(token: token, in: self)
+
     }
 
     @objc func internalTap() {

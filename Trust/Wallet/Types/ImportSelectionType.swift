@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
@@ -6,18 +6,18 @@ enum ImportSelectionType {
     case keystore
     case privateKey
     case mnemonic
-    case watch
+    case address
 
     var title: String {
         switch self {
         case .keystore:
-            return NSLocalizedString("Keystore", value: "Keystore", comment: "")
+            return R.string.localizable.keystore()
         case .privateKey:
-            return NSLocalizedString("Private Key", value: "Private Key", comment: "")
+            return R.string.localizable.privateKey()
         case .mnemonic:
-            return NSLocalizedString("Mnemonic", value: "Mnemonic", comment: "")
-        case .watch:
-            return NSLocalizedString("Watch", value: "Watch", comment: "")
+            return R.string.localizable.phrase()
+        case .address:
+            return R.string.localizable.address()
         }
     }
 
@@ -25,8 +25,8 @@ enum ImportSelectionType {
         switch title {
         case ImportSelectionType.privateKey.title?:
             self = .privateKey
-        case ImportSelectionType.watch.title?:
-            self = .watch
+        case ImportSelectionType.address.title?:
+            self = .address
         case ImportSelectionType.mnemonic.title?:
             self = .mnemonic
         default:
@@ -42,7 +42,7 @@ enum ImportSelectionType {
             return NSLocalizedString("import.privateKey.footer", value: "Typically 64 alphanumeric characters", comment: "")
         case .mnemonic:
             return NSLocalizedString("import.mnemonic.footer", value: "Typically 12 (sometimes 24) words separated by single spaces", comment: "")
-        case .watch:
+        case .address:
             return NSLocalizedString("import.watch.footer", value: "You can “watch” any public address without divulging your private key. This let’s you view balances and transactions, but not send transactions.", comment: "")
         }
     }

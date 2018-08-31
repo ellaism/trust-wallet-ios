@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -8,7 +8,7 @@ protocol BookmarkViewControllerDelegate: class {
     func didSelectBookmark(_ bookmark: Bookmark, in viewController: BookmarkViewController)
 }
 
-class BookmarkViewController: UIViewController {
+final class BookmarkViewController: UIViewController {
 
     let tableView = UITableView(frame: .zero, style: .plain)
 
@@ -56,7 +56,7 @@ class BookmarkViewController: UIViewController {
 
     func confirmDelete(bookmark: Bookmark, index: IndexPath) {
         confirm(title: NSLocalizedString("browser.bookmarks.confirm.delete.title", value: "Are you sure you would like to delete this bookmark?", comment: ""),
-                okTitle: NSLocalizedString("Delete", value: "Delete", comment: ""),
+                okTitle: R.string.localizable.delete(),
                 okStyle: .destructive) { result in
                     switch result {
                     case .success:

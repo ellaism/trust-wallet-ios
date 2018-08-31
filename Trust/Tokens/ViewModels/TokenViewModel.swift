@@ -1,10 +1,12 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import BigInt
 import RealmSwift
+import TrustKeystore
+import TrustCore
 
-class TokenViewModel {
+final class TokenViewModel {
 
     private let shortFormatter = EtherNumberFormatter.short
     private let config: Config
@@ -18,17 +20,20 @@ class TokenViewModel {
     private var transactionToken: NotificationToken?
 
     let token: TokenObject
+    private lazy var tokenObjectViewModel: TokenObjectViewModel = {
+        return TokenObjectViewModel(token: token)
+    }()
 
     var title: String {
-        return token.displayName
+        return tokenObjectViewModel.title
     }
 
     var imageURL: URL? {
-        return token.imageURL
+        return tokenObjectViewModel.imageURL
     }
 
     var imagePlaceholder: UIImage? {
-        return R.image.ethereum_logo_256()
+        return tokenObjectViewModel.placeholder
     }
 
     private var symbol: String {
@@ -39,6 +44,20 @@ class TokenViewModel {
         return UIFont.systemFont(ofSize: 18, weight: .medium)
     }
 
+    let titleFormmater: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d yyyy"
+        return formatter
+    }()
+
+    let backgroundColor: UIColor = {
+        return .white
+    }()
+
+    lazy var transactionsProvider: EthereumTransactionsProvider = {
+        return EthereumTransactionsProvider(server: server)
+    }()
+
     var amount: String {
         return String(
             format: "%@ %@",
@@ -47,15 +66,17 @@ class TokenViewModel {
         )
     }
 
-    var isBuyActionAvailable: Bool {
-        switch config.server {
-        case .shikinseki, .ellaism, .custom: return false
-        }
-    }
-
     var numberOfSections: Int {
         return tokenTransactionSections.count
     }
+
+    var server: RPCServer {
+        return TokensDataStore.getServer(for: token)
+    }
+
+    lazy var currentAccount: Account = {
+        return session.account.accounts.filter { $0.coin == token.coin }.first!
+    }()
 
     init(
         token: TokenObject,
@@ -75,11 +96,34 @@ class TokenViewModel {
     }
 
     var ticker: CoinTicker? {
-        return store.coinTicker(for: token)
+        return store.coinTicker(by: token.address)
+    }
+
+    var allTransactions: [Transaction] {
+        return Array(tokenTransactions!)
+    }
+
+    var pendingTransactions: [Transaction] {
+        return Array(tokenTransactions!.filter { $0.state == TransactionState.pending })
+    }
+
+    // Market Price
+
+    var marketPrice: String? {
+        return TokensLayout.cell.marketPrice(for: ticker)
+    }
+
+    var marketPriceFont: UIFont {
+        return UIFont.systemFont(ofSize: 14, weight: .regular)
+    }
+
+    var marketPriceTextColor: UIColor {
+        return TokensLayout.cell.fiatAmountTextColor
     }
 
     var totalFiatAmount: String? {
-        return TokensLayout.cell.totalFiatAmount(for: ticker, token: token, currency: config.currency)
+        guard let value = TokensLayout.cell.totalFiatAmount(token: token) else { return .none }
+        return " (" + value + ")"
     }
 
     var fiatAmountTextColor: UIColor {
@@ -88,10 +132,6 @@ class TokenViewModel {
 
     var fiatAmountFont: UIFont {
         return UIFont.systemFont(ofSize: 14, weight: .regular)
-    }
-
-    var currencyAmount: String? {
-        return TokensLayout.cell.currencyAmount(for: ticker, token: token)
     }
 
     var amountTextColor: UIColor {
@@ -111,9 +151,6 @@ class TokenViewModel {
     }
 
     var percentChange: String? {
-        guard let _ = currencyAmount else {
-            return .none
-        }
         return TokensLayout.cell.percentChange(for: ticker)
     }
 
@@ -122,8 +159,9 @@ class TokenViewModel {
     }
 
     func fetch() {
-        getTokenBalance()
+        updateTokenBalance()
         fetchTransactions()
+        updatePending()
     }
 
     func tokenObservation(with completion: @escaping (() -> Void)) {
@@ -150,60 +188,109 @@ class TokenViewModel {
         return tokenTransactionSections[section].items[row]
     }
 
+    func convert(from title: String) -> Date? {
+        return titleFormmater.date(from: title)
+    }
+
     func titleForHeader(in section: Int) -> String {
         let stringDate = tokenTransactionSections[section].title
-        guard let date = TransactionsViewModel.convert(from: stringDate) else {
+        guard let date = convert(from: stringDate) else {
             return stringDate
         }
 
         if NSCalendar.current.isDateInToday(date) {
-            return NSLocalizedString("Today", value: "Today", comment: "")
+            return R.string.localizable.today()
         }
         if NSCalendar.current.isDateInYesterday(date) {
-            return NSLocalizedString("Yesterday", value: "Yesterday", comment: "")
+            return R.string.localizable.yesterday()
         }
         return stringDate
     }
 
-    func hederView(for section: Int) -> UIView {
-        return SectionHeader(
-            fillColor: TransactionsViewModel.headerBackgroundColor,
-            borderColor: TransactionsViewModel.headerBorderColor,
-            title: titleForHeader(in: section),
-            textColor: TransactionsViewModel.headerTitleTextColor,
-            textFont: TransactionsViewModel.headerTitleFont
-        )
-    }
-
     func cellViewModel(for indexPath: IndexPath) -> TransactionCellViewModel {
-        return TransactionCellViewModel(transaction: tokenTransactionSections[indexPath.section].items[indexPath.row], config: config, chainState: session.chainState, currentWallet: session.account)
+        return TransactionCellViewModel(
+            transaction: tokenTransactionSections[indexPath.section].items[indexPath.row],
+            config: config,
+            chainState: ChainState(server: server),
+            currentAccount: currentAccount,
+            server: token.coin.server,
+            token: token
+        )
     }
 
     func hasContent() -> Bool {
         return !tokenTransactionSections.isEmpty
     }
 
-    private func getTokenBalance() {
-        tokensNetwork.tokenBalance(for: token.address) { [weak self] (result) in
-            guard let balance = result, let token = self?.token else {
-                return
+    private func updateTokenBalance() {
+        guard let provider = TokenViewModel.balance(for: token, wallet: session.account) else {
+            return
+        }
+        let _ = provider.balance().done { [weak self] balance in
+            self?.store.update(balance: balance, for: provider.addressUpdate)
+        }
+    }
+
+    static func balance(for token: TokenObject, wallet: WalletInfo) -> BalanceNetworkProvider? {
+        let first = wallet.accounts.filter { $0.coin == token.coin }.first
+        guard let account = first else { return .none }
+        let networkBalance: BalanceNetworkProvider? = {
+            switch token.type {
+            case .coin:
+                return CoinNetworkProvider(
+                    server: token.coin.server,
+                    address: EthereumAddress(string: account.address.description)!,
+                    addressUpdate: token.address
+                )
+            case .ERC20:
+                return TokenNetworkProvider(
+                    server: token.coin.server,
+                    address: EthereumAddress(string: account.address.description)!,
+                    contract: token.address,
+                    addressUpdate: token.address
+                )
             }
-            self?.store.update(balances: [token.address: balance.value])
+        }()
+        return networkBalance
+    }
+
+    func updatePending() {
+        let transactions = pendingTransactions
+
+        for transaction in transactions {
+            transactionsProvider.update(for: transaction) { result in
+                switch result {
+                case .success(let transaction, let state):
+                    self.transactionsStore.update(state: state, for: transaction)
+                case .failure: break
+                }
+            }
         }
     }
 
     private func fetchTransactions() {
-        tokensNetwork.transactions(for: session.account.address, startBlock: 1, page: 0, contract: token.contract) { result in
+        let contract: String? = {
+            switch token.type {
+            case .coin: return .none
+            case .ERC20: return token.contract
+            }
+        }()
+        tokensNetwork.transactions(for: currentAccount.address, on: server, startBlock: 1, page: 0, contract: contract) { result in
             guard let transactions = result.0 else { return }
             self.transactionsStore.add(transactions)
         }
     }
 
     private func prepareDataSource(for token: TokenObject) {
-        if TokensDataStore.etherToken(for: session.config) == token {
-            tokenTransactions = transactionsStore.realm.objects(Transaction.self).filter(NSPredicate(format: "localizedOperations.@count == 0")).sorted(byKeyPath: "date", ascending: false)
-        } else {
-            tokenTransactions = transactionsStore.realm.objects(Transaction.self).filter(NSPredicate(format: "%K ==[cd] %@", "to", token.contract)).sorted(byKeyPath: "date", ascending: false)
+        switch token.type {
+        case .coin:
+            tokenTransactions = transactionsStore.realm.objects(Transaction.self)
+                .filter(NSPredicate(format: "rawCoin = %d", server.coin.rawValue))
+                .sorted(byKeyPath: "date", ascending: false)
+        case .ERC20:
+            tokenTransactions = transactionsStore.realm.objects(Transaction.self)
+                .filter(NSPredicate(format: "rawCoin = %d && %K ==[cd] %@", server.coin.rawValue, "to", token.contract))
+                .sorted(byKeyPath: "date", ascending: false)
         }
         updateSections()
     }

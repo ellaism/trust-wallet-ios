@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
-class CurrencyFormatter {
+final class CurrencyFormatter {
     static var formatter: NumberFormatter {
         let formatter = NumberFormatter()
         formatter.minimumFractionDigits = 2

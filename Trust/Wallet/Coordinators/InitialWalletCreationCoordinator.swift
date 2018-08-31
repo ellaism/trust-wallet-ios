@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustCore
@@ -6,10 +6,10 @@ import UIKit
 
 protocol InitialWalletCreationCoordinatorDelegate: class {
     func didCancel(in coordinator: InitialWalletCreationCoordinator)
-    func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator)
+    func didAddAccount(_ account: WalletInfo, in coordinator: InitialWalletCreationCoordinator)
 }
 
-class InitialWalletCreationCoordinator: Coordinator {
+final class InitialWalletCreationCoordinator: Coordinator {
 
     let navigationController: NavigationController
     let keystore: Keystore
@@ -37,7 +37,7 @@ class InitialWalletCreationCoordinator: Coordinator {
     }
 
     func showCreateWallet() {
-        let coordinator = WalletCoordinator(navigationController: self.navigationController, keystore: keystore)
+        let coordinator = WalletCoordinator(navigationController: navigationController, keystore: keystore)
         coordinator.delegate = self
         coordinator.start(.createInstantWallet)
         addCoordinator(coordinator)
@@ -53,7 +53,7 @@ class InitialWalletCreationCoordinator: Coordinator {
 }
 
 extension InitialWalletCreationCoordinator: WalletCoordinatorDelegate {
-    func didFinish(with account: Wallet, in coordinator: WalletCoordinator) {
+    func didFinish(with account: WalletInfo, in coordinator: WalletCoordinator) {
         delegate?.didAddAccount(account, in: self)
         removeCoordinator(coordinator)
     }

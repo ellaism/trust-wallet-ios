@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import Eureka
@@ -8,7 +8,7 @@ protocol EnterPasswordViewControllerDelegate: class {
     func didEnterPassword(password: String, for account: Account, in viewController: EnterPasswordViewController)
 }
 
-class EnterPasswordViewController: FormViewController, UITextFieldDelegate {
+final class EnterPasswordViewController: FormViewController, UITextFieldDelegate {
 
     struct Values {
         static var password = "password"

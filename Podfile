@@ -10,7 +10,7 @@ target 'Trust' do
   pod 'JSONRPCKit', :git=> 'https://github.com/bricklife/JSONRPCKit.git'
   pod 'PromiseKit', '~> 6.0'
   pod 'APIKit'
-  pod 'Eureka', '~> 4.1.1'
+  pod 'Eureka'
   pod 'MBProgressHUD'
   pod 'StatefulViewController'
   pod 'QRCodeReaderViewController', :git=>'https://github.com/yannickl/QRCodeReaderViewController.git', :branch=>'master'
@@ -18,20 +18,16 @@ target 'Trust' do
   pod 'SwiftLint'
   pod 'SeedStackViewController'
   pod 'RealmSwift'
-  pod 'Lokalise'
   pod 'Moya', '~> 10.0.1'
-  pod 'CryptoSwift', :git=>'https://github.com/krzyzanowskim/CryptoSwift', :branch=>'master'
-  pod 'Fabric'
-  pod 'Crashlytics', '~> 3.10'
+  pod 'CryptoSwift', '~> 0.10.0'
   pod 'Kingfisher', '~> 4.0'
-  pod 'TrustCore', '~> 0.0.7'
-  pod 'TrustKeystore', '~> 0.4.0'
+  pod 'TrustCore', :git=>'https://github.com/TrustWallet/trust-core', :branch=>'master'
+  pod 'TrustKeystore', :git=>'https://github.com/TrustWallet/trust-keystore', :branch=>'master'
+  pod 'TrezorCrypto'
   pod 'Branch'
   pod 'SAMKeychain'
-  pod 'TrustWeb3Provider', :git=>'https://github.com/TrustWallet/trust-web3-provider', :branch=>'master'
-  pod 'JdenticonSwift'
+  pod 'TrustWeb3Provider', :git=>'https://github.com/TrustWallet/trust-web3-provider', :commit=>'f4e0ebb1b8fa4812637babe85ef975d116543dfd'
   pod 'URLNavigator'
-  pod 'RandomColorSwift'
   pod 'TrustWalletSDK', :git=>'https://github.com/TrustWallet/TrustSDK-iOS', :branch=>'master'
 
   target 'TrustTests' do
@@ -58,5 +54,10 @@ post_install do |installer|
         config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Owholemodule'
       end
     end
+    # if target.name != 'Realm'
+    #     target.build_configurations.each do |config|
+    #         config.build_settings['MACH_O_TYPE'] = 'staticlib'
+    #     end
+    # end
   end
 end

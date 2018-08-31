@@ -1,9 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import RealmSwift
 
-class BookmarksStore {
+final class BookmarksStore {
     var bookmarks: Results<Bookmark> {
         return realm.objects(Bookmark.self)
             .sorted(byKeyPath: "createdAt", ascending: false)

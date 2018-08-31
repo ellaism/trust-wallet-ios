@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import StackViewController
@@ -9,15 +9,17 @@ protocol TransactionViewControllerDelegate: class {
     func didPressURL(_ url: URL)
 }
 
-class TransactionViewController: UIViewController {
+final class TransactionViewController: UIViewController {
 
     private lazy var viewModel: TransactionDetailsViewModel = {
-        return .init(
+        return TransactionDetailsViewModel(
             transaction: self.transaction,
             config: self.config,
-            chainState: self.session.chainState,
-            currentWallet: self.session.account,
-            currencyRate: self.session.balanceCoordinator.currencyRate
+            chainState: ChainState(server: tokenViewModel.server),
+            currentAccount: tokenViewModel.currentAccount,
+            session: session,
+            server: tokenViewModel.server,
+            token: tokenViewModel.token
         )
     }()
     let stackViewController = StackViewController()
@@ -25,14 +27,17 @@ class TransactionViewController: UIViewController {
     let session: WalletSession
     let transaction: Transaction
     let config = Config()
+    let tokenViewModel: TokenViewModel
     weak var delegate: TransactionViewControllerDelegate?
 
     init(
         session: WalletSession,
-        transaction: Transaction
+        transaction: Transaction,
+        tokenViewModel: TokenViewModel
     ) {
         self.session = session
         self.transaction = transaction
+        self.tokenViewModel = tokenViewModel
 
         stackViewController.scrollView.alwaysBounceVertical = true
         stackViewController.stackView.spacing = TransactionAppearance.spacing
@@ -108,7 +113,7 @@ class TransactionViewController: UIViewController {
 
     private func moreDetails() -> UIView {
         let button = Button(size: .large, style: .border)
-        button.setTitle(NSLocalizedString("More Details", value: "More Details", comment: ""), for: .normal)
+        button.setTitle(R.string.localizable.moreDetails(), for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         button.addTarget(self, action: #selector(more), for: .touchUpInside)
 
@@ -133,7 +138,7 @@ class TransactionViewController: UIViewController {
         let copyAction = UIAlertAction(title: NSLocalizedString("Copy", value: "Copy", comment: ""), style: .default) { _ in
             UIPasteboard.general.string = value
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Done", value: "Done", comment: ""), style: .cancel) { _ in }
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { _ in }
         alertController.addAction(copyAction)
         alertController.addAction(cancelAction)
         present(alertController, animated: true, completion: nil)

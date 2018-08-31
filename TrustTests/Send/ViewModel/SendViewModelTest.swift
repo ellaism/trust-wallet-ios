@@ -1,11 +1,17 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import XCTest
 import BigInt
 @testable import Trust
 
 class SendViewModelTest: XCTestCase {
-    var sendViewModel = SendViewModel(transferType: .ether(destination: .none), config: .make(), chainState: .make(), storage: FakeTokensDataStore(), balance: Balance(value: BigInt("11274902618710000000000")))
+    var sendViewModel = SendViewModel(
+        transfer: Transfer(server: .make(), type: .ether(.make(), destination: .none)) ,
+        config: .make(),
+        chainState: .make(),
+        storage: FakeTokensDataStore(),
+        balance: Balance(value: BigInt("11274902618710000000000"))
+    )
     var decimalFormatter = DecimalFormatter()
     override func setUp() {
         sendViewModel.amount = "198212312.123123"
@@ -20,7 +26,7 @@ class SendViewModelTest: XCTestCase {
         sendViewModel.pairRate = 298981.983212
         sendViewModel.currentPair = sendViewModel.currentPair.swapPair()
         let cryptoRepresentation = sendViewModel.pairRateRepresantetion()
-        XCTAssertEqual("~ \(expectedCryptoResult) ETH", cryptoRepresentation)
+        XCTAssertEqual("~ \(expectedCryptoResult) \(sendViewModel.transfer.type.token.symbol)", cryptoRepresentation)
     }
     func testUpdatePairRate() {
         XCTAssertEqual(0.0, sendViewModel.pairRate)

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -21,9 +21,6 @@ func applyStyle() {
 
     UIImageView.appearance().tintColor = Colors.lightBlue
 
-    BalanceTitleView.appearance().titleTextColor = UIColor.white
-    BalanceTitleView.appearance().subTitleTextColor = UIColor(white: 0.9, alpha: 1)
-
     BrowserNavigationBar.appearance().setBackgroundImage(.filled(with: .white), for: .default)
 }
 
@@ -35,6 +32,7 @@ struct AppGlobalStyle {
 
 struct StyleLayout {
     static let sideMargin: CGFloat = 15
+    static let sideCellMargin: CGFloat = 10
 
     struct TableView {
         static let heightForHeaderInSection: CGFloat = 30
@@ -44,4 +42,14 @@ struct StyleLayout {
     struct CollectibleView {
         static let heightForHeaderInSection: CGFloat = 40
     }
+}
+
+struct EditTokenStyleLayout {
+    static let preferedImageSize: CGFloat = 52
+    static let sideMargin: CGFloat = 15
+}
+
+struct TransactionStyleLayout {
+    static let stackViewSpacing: CGFloat = 15
+    static let preferedImageSize: CGFloat = 26
 }

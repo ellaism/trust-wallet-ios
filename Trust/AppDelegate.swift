@@ -1,7 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
+
 import UIKit
-import Lokalise
-//import Branch
+import Branch
+import RealmSwift
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDelegate {
@@ -15,8 +17,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         //setenv("CFNETWORK_DIAGNOSTICS", "3", 1);
         window = UIWindow(frame: UIScreen.main.bounds)
+        
+        UNUserNotificationCenter.current().requestAuthorization(options: [.badge, .alert, .sound]) { _, _  in }
+        UIApplication.shared.registerForRemoteNotifications()
 
-        let keystore = EtherKeystore.shared
+        let sharedMigration = SharedMigrationInitializer()
+        sharedMigration.perform()
+        let realm = try! Realm(configuration: sharedMigration.config)
+        let walletStorage = WalletStorage(realm: realm)
+        let keystore = EtherKeystore(storage: walletStorage)
+
         coordinator = AppCoordinator(window: window!, keystore: keystore, navigator: urlNavigatorCoordinator)
         coordinator.start()
 
@@ -40,7 +50,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UISplitViewControllerDele
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {
-        Lokalise.shared.checkForUpdates { _, _ in }
         protectionCoordinator.applicationDidBecomeActive()
         CookiesStore.load()
     }

@@ -1,18 +1,15 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import XCTest
 @testable import Trust
 
 class ExportPrivateKeyCoordinatorTests: XCTestCase {
     
-    func testStart() {
+    func testInit() {
         let coordinator = ExportPrivateKeyCoordinator(
-            keystore: FakeEtherKeystore(),
-            account: .make()
+            privateKey: Data()
         )
 
-        coordinator.start()
-
-        XCTAssertTrue(coordinator.navigationController.viewControllers[0] is ExportPrivateKeyViewConroller)
+        XCTAssertTrue(coordinator.rootViewController is ExportPrivateKeyViewConroller)
     }
 }

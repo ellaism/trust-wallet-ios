@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -16,7 +16,7 @@ struct TransactionHeaderViewViewModel {
     let statusImage: UIImage?
 }
 
-class TransactionHeaderView: UIView {
+final class TransactionHeaderView: UIView {
 
     let imageView = UIImageView()
     let amountLabel = UILabel()

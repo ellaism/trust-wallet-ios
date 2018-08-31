@@ -1,10 +1,10 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 import StatefulViewController
 
-class ErrorView: UIView {
+final class ErrorView: UIView {
 
     let descriptionLabel = UILabel()
     let imageView = UIImageView()

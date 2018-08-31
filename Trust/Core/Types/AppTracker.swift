@@ -1,13 +1,14 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 import Foundation
 
-class AppTracker {
+final class AppTracker {
 
     struct Keys {
         static let launchCountTotal = "launchCountTotal"
         static let launchCountForCurrentBuild = "launchCountForCurrentBuild-" + String(Bundle.main.buildNumberInt)
         static let completedSharing = "completedSharing"
         static let completedRating = "completedRating"
+        static let completeMultiCoinMigration = "completeMultiCoinMigrationKey"
     }
 
     let defaults: UserDefaults
@@ -32,6 +33,11 @@ class AppTracker {
         set { return defaults.set(newValue, forKey: Keys.completedSharing) }
     }
 
+    var completeMultiCoinMigration: Bool {
+        get { return defaults.bool(forKey: Keys.completeMultiCoinMigration) }
+        set { return defaults.set(newValue, forKey: Keys.completeMultiCoinMigration) }
+    }
+
     init(
         defaults: UserDefaults = .standard
     ) {
@@ -39,7 +45,7 @@ class AppTracker {
     }
 
     func start() {
-        launchCountTotal += launchCountTotal
+        launchCountTotal += 1
         launchCountForCurrentBuild += 1
     }
 
@@ -49,6 +55,7 @@ class AppTracker {
         launchCountForCurrentBuild: \(launchCountForCurrentBuild)
         completedRating: \(completedRating)
         completedSharing: \(completedSharing)
+        completeMultiCoinMigration: \(completeMultiCoinMigration)
         """
     }
 }

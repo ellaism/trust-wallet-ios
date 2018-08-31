@@ -1,13 +1,15 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
 public struct Constants {
+
     public static let coinbaseWidgetCode = ""
     public static let shapeShiftPublicKey = ""
     public static let changellyRefferalID = ""
     //
     public static let keychainKeyPrefix = "ellawallet"
+    public static let keychainTestsKeyPrefix = "ellawallet-tests"
 
     // social
     public static let website = "https://ellaism.org"
@@ -19,16 +21,17 @@ public struct Constants {
     public static let redditUrl = "https://www.reddit.com/r/ellaism"
     public static let githubUrl = "https://github.com/ellaism"
 
+    public static var localizedTelegramUsernames = ["ru": "ellaismcoin", "vi": "ellaismcoin", "es": "ellaismcoin", "zh": "ellaismcoin", "ja": "ellaismcoin", "de": "ellaismcoin", "fr": "ellaismcoin"]
+
     // support
     public static let supportEmail = "support@outdoordevs.com"
     public static let donationAddress = "0xe9C2d958E6234c862b4AfBD75b2fd241E9556303"
 
     public static let dappsBrowserURL = "https://ellaism.github.io/trust-wallet-ios/dapps/index"
     public static let dappsOpenSea = ""
-
     public static let images = "https://ellaism.github.io/trust-wallet-ios/images"
 
-    public static let trustAPI = URL(string: "https://trustray.outdoordevs.com")!
+    public static let trustAPI = URL(string: "http://trust-api.outdoordevs.com")!
 }
 
 public struct UnitConfiguration {

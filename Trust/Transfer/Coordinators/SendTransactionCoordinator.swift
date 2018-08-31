@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import BigInt
 import Foundation
@@ -6,21 +6,24 @@ import APIKit
 import JSONRPCKit
 import Result
 
-class SendTransactionCoordinator {
+final class SendTransactionCoordinator {
 
     private let keystore: Keystore
     let session: WalletSession
     let formatter = EtherNumberFormatter.full
     let confirmType: ConfirmType
+    let server: RPCServer
 
     init(
         session: WalletSession,
         keystore: Keystore,
-        confirmType: ConfirmType
+        confirmType: ConfirmType,
+        server: RPCServer
     ) {
         self.session = session
         self.keystore = keystore
         self.confirmType = confirmType
+        self.server = server
     }
 
     func send(
@@ -30,8 +33,8 @@ class SendTransactionCoordinator {
         if transaction.nonce >= 0 {
             signAndSend(transaction: transaction, completion: completion)
         } else {
-            let request = EtherServiceRequest(batch: BatchFactory().create(GetTransactionCountRequest(
-                address: session.account.address.description,
+            let request = EtherServiceRequest(for: server, batch: BatchFactory().create(GetTransactionCountRequest(
+                address: transaction.account.address.description,
                 state: "latest"
             )))
             Session.send(request) { [weak self] result in
@@ -87,7 +90,7 @@ class SendTransactionCoordinator {
         case .sign:
             completion(.success(.sentTransaction(sentTransaction)))
         case .signThenSend:
-            let request = EtherServiceRequest(batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: dataHex)))
+            let request = EtherServiceRequest(for: server, batch: BatchFactory().create(SendRawTransactionRequest(signedTransaction: dataHex)))
             Session.send(request) { result in
                 switch result {
                 case .success:

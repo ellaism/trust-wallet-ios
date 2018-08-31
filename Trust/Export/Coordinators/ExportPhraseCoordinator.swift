@@ -1,52 +1,44 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustKeystore
 import TrustCore
 
-protocol ExportPhraseCoordinatorDelegate: class {
-    func didCancel(in coordinator: ExportPhraseCoordinator)
-}
+final class ExportPhraseCoordinator: RootCoordinator {
 
-class ExportPhraseCoordinator: Coordinator {
-
-    let navigationController: NavigationController
-    weak var delegate: ExportPhraseCoordinatorDelegate?
     let keystore: Keystore
-    let account: Account
+    let account: Wallet
+    let words: [String]
     var coordinators: [Coordinator] = []
-    lazy var rootViewController: PassphraseViewController = {
+    var rootViewController: UIViewController {
+        return passphraseViewController
+    }
+    var passphraseViewController: PassphraseViewController {
         let controller = PassphraseViewController(
-            words: viewModel.words
+            account: account,
+            words: words
         )
+        controller.delegate = self
         controller.title = viewModel.title
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(
-            barButtonSystemItem: .cancel,
-            target: self,
-            action: #selector(dismiss)
-        )
         return controller
-    }()
+    }
     private lazy var viewModel: ExportPhraseViewModel = {
         return .init(keystore: keystore, account: account)
     }()
 
     init(
-        navigationController: NavigationController = NavigationController(),
         keystore: Keystore,
-        account: Account
+        account: Wallet,
+        words: [String]
     ) {
-        self.navigationController = navigationController
-        self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
         self.account = account
+        self.words = words
     }
+}
 
-    func start() {
-        navigationController.viewControllers = [rootViewController]
-    }
-
-    @objc func dismiss() {
-        delegate?.didCancel(in: self)
+extension ExportPhraseCoordinator: PassphraseViewControllerDelegate {
+    func didPressVerify(in controller: PassphraseViewController, with account: Wallet, words: [String]) {
+        // Missing functionality
     }
 }

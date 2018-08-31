@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import StatefulViewController
@@ -6,10 +6,11 @@ import StatefulViewController
 protocol TokenViewControllerDelegate: class {
     func didPressRequest(for token: TokenObject, in controller: UIViewController)
     func didPressSend(for token: TokenObject, in controller: UIViewController)
-    func didPress(transaction: Transaction, in controller: UIViewController)
+    func didPressInfo(for token: TokenObject, in controller: UIViewController)
+    func didPress(viewModel: TokenViewModel, transaction: Transaction, in controller: UIViewController)
 }
 
-class TokenViewController: UIViewController {
+final class TokenViewController: UIViewController {
 
     private let refreshControl = UIRefreshControl()
 
@@ -21,7 +22,7 @@ class TokenViewController: UIViewController {
     }()
 
     private var insets: UIEdgeInsets {
-        return UIEdgeInsets(top: header.frame.height + 100, left: 0, bottom: 60, right: 0)
+        return UIEdgeInsets(top: header.frame.height + 100, left: 0, bottom: 0, right: 0)
     }
 
     private var viewModel: TokenViewModel
@@ -34,7 +35,7 @@ class TokenViewController: UIViewController {
 
         navigationItem.title = viewModel.title
         view.backgroundColor = .white
-
+        tableView.tableFooterView = UIView()
         tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.dataSource = self
         tableView.delegate = self
@@ -55,6 +56,11 @@ class TokenViewController: UIViewController {
         header.buttonsView.requestButton.addTarget(self, action: #selector(request), for: .touchUpInside)
         header.buttonsView.sendButton.addTarget(self, action: #selector(send), for: .touchUpInside)
         updateHeader()
+
+        // TODO: Enable when finished
+        if isDebug {
+            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .organize, target: self, action: #selector(infoAction))
+        }
     }
 
     override func viewDidLoad() {
@@ -70,13 +76,13 @@ class TokenViewController: UIViewController {
         fetch()
     }
 
-    required init?(coder aDecoder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
     private func fetch() {
         startLoading()
         viewModel.fetch()
+    }
+
+    @objc func infoAction() {
+        delegate?.didPressInfo(for: viewModel.token, in: self)
     }
 
     private func observToken() {
@@ -108,10 +114,10 @@ class TokenViewController: UIViewController {
         header.fiatAmountLabel.font = viewModel.fiatAmountFont
         header.fiatAmountLabel.textColor = viewModel.fiatAmountTextColor
 
-//        header.currencyAmountLabel.text = viewModel.currencyAmount
-//        header.currencyAmountLabel.textColor = viewModel.currencyAmountTextColor
-//        header.currencyAmountLabel.font = viewModel.currencyAmountFont
-//
+        header.marketPriceLabel.text = viewModel.marketPrice
+        header.marketPriceLabel.textColor = viewModel.marketPriceTextColor
+        header.marketPriceLabel.font = viewModel.marketPriceFont
+
         header.percentChange.text = viewModel.percentChange
         header.percentChange.textColor = viewModel.percentChangeColor
         header.percentChange.font = viewModel.percentChangeFont
@@ -141,6 +147,10 @@ class TokenViewController: UIViewController {
         loadingView = LoadingView(insets: insets)
         emptyView = TransactionsEmptyView(insets: insets)
     }
+
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 }
 
 extension TokenViewController: UITableViewDataSource, UITableViewDelegate {
@@ -159,7 +169,9 @@ extension TokenViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        return viewModel.hederView(for: section)
+        return SectionHeader(
+            title: viewModel.titleForHeader(in: section)
+        )
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
@@ -167,7 +179,7 @@ extension TokenViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        delegate?.didPress(transaction: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
+        delegate?.didPress(viewModel: viewModel, transaction: viewModel.item(for: indexPath.row, section: indexPath.section), in: self)
         tableView.deselectRow(at: indexPath, animated: true)
     }
 }

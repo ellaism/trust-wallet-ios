@@ -1,13 +1,12 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import WebKit
 import JavaScriptCore
-
+import TrustCore
 extension WKWebViewConfiguration {
 
-    static func make(for account: Wallet, with sessionConfig: Config, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
-        let address = account.address.description.lowercased()
+    static func make(for server: RPCServer, address: Address, with sessionConfig: Config, in messageHandler: WKScriptMessageHandler) -> WKWebViewConfiguration {
         let config = WKWebViewConfiguration()
         var js = ""
 
@@ -23,42 +22,42 @@ extension WKWebViewConfiguration {
 
         js +=
         """
-        const addressHex = "\(address)"
-        const rpcURL = "\(sessionConfig.server.rpcURL.absoluteString)"
-        const chainID = "\(sessionConfig.chainID)"
+        const addressHex = "\(address.description.lowercased())"
+        const rpcURL = "\(server.rpcURL.absoluteString)"
+        const chainID = "\(server.chainID)"
 
         function executeCallback (id, error, value) {
-          Trust.executeCallback(id, error, value)
+            Trust.executeCallback(id, error, value)
         }
 
         Trust.init(rpcURL, {
-          getAccounts: function (cb) { cb(null, [addressHex]) },
-          processTransaction: function (tx, cb){
-            console.log('signing a transaction', tx)
-            const { id = 8888 } = tx
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object": tx, id: id})
-          },
-          signMessage: function (msgParams, cb) {
-            const { data } = msgParams
-            const { id = 8888 } = msgParams
-            console.log("signing a message", msgParams)
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id: id})
-        },
-          signPersonalMessage: function (msgParams, cb) {
-            const { data } = msgParams
-            const { id = 8888 } = msgParams
-            console.log("signing a personal message", msgParams)
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object": { data }, id: id})
-          },
-          signTypedMessage: function (msgParams, cb) {
-            const { data } = msgParams
-            const { id = 8888 } = msgParams
-            console.log("signing a typed message", msgParams)
-            Trust.addCallback(id, cb)
-            webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object": { data }, id: id})
+            getAccounts: function (cb) { cb(null, [addressHex]) },
+            processTransaction: function (tx, cb){
+                console.log('signing a transaction', tx)
+                const { id = 8888 } = tx
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signTransaction.postMessage({"name": "signTransaction", "object": tx, id: id})
+            },
+            signMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signMessage.postMessage({"name": "signMessage", "object": { data }, id: id})
+            },
+            signPersonalMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a personal message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signPersonalMessage.postMessage({"name": "signPersonalMessage", "object": { data }, id: id})
+            },
+            signTypedMessage: function (msgParams, cb) {
+                const { data } = msgParams
+                const { id = 8888 } = msgParams
+                console.log("signing a typed message", msgParams)
+                Trust.addCallback(id, cb)
+                webkit.messageHandlers.signTypedMessage.postMessage({"name": "signTypedMessage", "object": { data }, id: id})
             }
         }, {
             address: addressHex,
@@ -66,7 +65,7 @@ extension WKWebViewConfiguration {
         })
 
         web3.setProvider = function () {
-          console.debug('Trust Wallet - overrode web3.setProvider')
+            console.debug('Trust Wallet - overrode web3.setProvider')
         }
 
         web3.eth.defaultAccount = addressHex
@@ -74,6 +73,7 @@ extension WKWebViewConfiguration {
         web3.version.getNetwork = function(cb) {
             cb(null, chainID)
         }
+
         web3.eth.getCoinbase = function(cb) {
             return cb(null, addressHex)
         }

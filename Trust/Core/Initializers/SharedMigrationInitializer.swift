@@ -1,9 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import RealmSwift
 
-class SharedMigrationInitializer: Initializer {
+final class SharedMigrationInitializer: Initializer {
 
     lazy var config: Realm.Configuration = {
         return RealmConfiguration.sharedConfiguration()

@@ -1,10 +1,10 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 import Eureka
 
-class NetworksViewController: FormViewController {
+final class NetworksViewController: FormViewController {
 
     lazy var addButton: UIBarButtonItem = {
         return UIBarButtonItem(barButtonSystemItem: .done, target: self, action: #selector(addNetwork))

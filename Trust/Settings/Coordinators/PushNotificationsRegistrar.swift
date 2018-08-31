@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UserNotifications
@@ -6,9 +6,9 @@ import UIKit
 import Moya
 import TrustCore
 
-class PushNotificationsRegistrar {
+final class PushNotificationsRegistrar {
 
-    private let trustProvider = TrustProviderFactory.makeProvider()
+    private let provider = TrustProviderFactory.makeProvider()
     let config = Config()
 
     var isRegisteredForRemoteNotifications: Bool {
@@ -29,15 +29,16 @@ class PushNotificationsRegistrar {
         let device = PushDevice(
             deviceID: UIDevice.current.identifierForVendor!.uuidString,
             token: "",
-            wallets: [],
+            networks: [:],
             preferences: NotificationsViewController.getPreferences()
         )
 
-        trustProvider.request(.unregister(device: device)) { _ in }
+        provider.request(.unregister(device: device)) { _ in }
+
         UIApplication.shared.unregisterForRemoteNotifications()
     }
 
-    func didRegister(with deviceToken: Data, addresses: [Address]) {
+    func didRegister(with deviceToken: Data, networks: [Int: [String]]) {
         let token = deviceToken.map { data -> String in
             return String(format: "%02.2hhx", data)
         }.joined()
@@ -45,10 +46,10 @@ class PushNotificationsRegistrar {
         let device = PushDevice(
             deviceID: UIDevice.current.identifierForVendor!.uuidString,
             token: token,
-            wallets: addresses.map { $0.description },
+            networks: networks,
             preferences: NotificationsViewController.getPreferences()
         )
 
-        trustProvider.request(.register(device: device)) { _ in }
+        provider.request(.register(device: device)) { _ in }
     }
 }

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustCore
@@ -7,42 +7,27 @@ import WebKit
 import RealmSwift
 
 protocol SettingsCoordinatorDelegate: class {
-    func didRestart(with account: Wallet, tab: Tabs, in coordinator: SettingsCoordinator)
+    func didRestart(with account: WalletInfo, tab: Tabs, in coordinator: SettingsCoordinator)
     func didUpdateAccounts(in coordinator: SettingsCoordinator)
     func didPressURL(_ url: URL, in coordinator: SettingsCoordinator)
     func didCancel(in coordinator: SettingsCoordinator)
 }
 
-class SettingsCoordinator: Coordinator {
+final class SettingsCoordinator: Coordinator {
 
     let navigationController: NavigationController
     let keystore: Keystore
     let session: WalletSession
     let storage: TransactionsStorage
-    let balanceCoordinator: TokensBalanceService
-    let ensManager: ENSManager
+    let walletStorage: WalletStorage
     weak var delegate: SettingsCoordinatorDelegate?
     let pushNotificationsRegistrar = PushNotificationsRegistrar()
     var coordinators: [Coordinator] = []
 
-    lazy var accountsCoordinator: AccountsCoordinator = {
-        let coordinator = AccountsCoordinator(
-            navigationController: navigationController,
-            keystore: keystore,
-            session: session,
-            balanceCoordinator: balanceCoordinator,
-            ensManager: ensManager
-        )
-        coordinator.delegate = self
-        return coordinator
-    }()
-
     lazy var rootViewController: SettingsViewController = {
         let controller = SettingsViewController(
             session: session,
-            keystore: keystore,
-            balanceCoordinator: balanceCoordinator,
-            accountsCoordinator: accountsCoordinator
+            keystore: keystore
         )
         controller.delegate = self
         controller.modalPresentationStyle = .pageSheet
@@ -58,27 +43,23 @@ class SettingsCoordinator: Coordinator {
         keystore: Keystore,
         session: WalletSession,
         storage: TransactionsStorage,
-        balanceCoordinator: TokensBalanceService,
-        sharedRealm: Realm,
-        ensManager: ENSManager
+        walletStorage: WalletStorage,
+        sharedRealm: Realm
     ) {
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.keystore = keystore
         self.session = session
         self.storage = storage
-        self.balanceCoordinator = balanceCoordinator
+        self.walletStorage = walletStorage
         self.sharedRealm = sharedRealm
-        self.ensManager = ensManager
-
-        addCoordinator(accountsCoordinator)
     }
 
     func start() {
         navigationController.viewControllers = [rootViewController]
     }
 
-    func restart(for wallet: Wallet, tab: Tabs) {
+    func restart(for wallet: WalletInfo, tab: Tabs) {
         delegate?.didRestart(with: wallet, tab: tab, in: self)
     }
 
@@ -90,53 +71,18 @@ class SettingsCoordinator: Coordinator {
         historyStore.clearAll()
     }
 
-    private func presentSwitchNetworkWarning(for server: RPCServer) {
-        var config = session.config
-        let viewModel = SettingsViewModel()
-        let alertViewController = UIAlertController.alertController(
-            title: viewModel.testNetworkWarningTitle,
-            message: viewModel.testNetworkWarningMessage,
-            style: .alert,
-            in: navigationController
-        )
-
-        alertViewController.popoverPresentationController?.sourceView = navigationController.view
-        alertViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
-
-        let okAction = UIAlertAction(title: NSLocalizedString("OK", value: "OK", comment: ""), style: .default) { _ in
-            self.switchNetwork(for: server)
-        }
-        let dontShowAgainAction = UIAlertAction(title: viewModel.testNetworkWarningDontShowAgainLabel, style: .default) { _ in
-            config.testNetworkWarningOff = true
-            self.switchNetwork(for: server)
-        }
-
-        alertViewController.addAction(dontShowAgainAction)
-        alertViewController.addAction(okAction)
-        navigationController.present(alertViewController, animated: true, completion: nil)
-    }
-
-    func prepareSwitchNetwork(for server: RPCServer) {
-        if server.networkType != .main && session.config.testNetworkWarningOff == false {
-            presentSwitchNetworkWarning(for: server)
-        } else {
-            switchNetwork(for: server)
-        }
-    }
-
-    func switchNetwork(for server: RPCServer) {
-        var config = session.config
-        config.chainID = server.chainID
-        restart(for: session.account, tab: Tabs.settings)
+    private func showWallets() {
+        let coordinator = WalletsCoordinator(keystore: keystore, navigationController: navigationController)
+        coordinator.delegate = self
+        navigationController.pushCoordinator(coordinator: coordinator, animated: true)
     }
 }
 
 extension SettingsCoordinator: SettingsViewControllerDelegate {
     func didAction(action: SettingsAction, in viewController: SettingsViewController) {
         switch action {
-        case .RPCServer(let server):
-            prepareSwitchNetwork(for: server)
         case .currency:
+            session.tokensStorage.clearBalance()
             restart(for: session.account, tab: Tabs.settings)
         case .pushNotifications(let change):
             switch change {
@@ -155,32 +101,43 @@ extension SettingsCoordinator: SettingsViewControllerDelegate {
         case .clearBrowserCache:
             cleadCache()
             CookiesStore.delete()
+        case .clearTransactions:
+            session.transactionsStorage.deleteAll()
+        case .clearTokens:
+            session.tokensStorage.deleteAll()
+        case .wallets:
+            showWallets()
         }
     }
 }
 
-extension SettingsCoordinator: AccountsCoordinatorDelegate {
-    func didAddAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        delegate?.didUpdateAccounts(in: self)
+extension SettingsCoordinator: WalletsCoordinatorDelegate {
+    func didCancel(in coordinator: WalletsCoordinator) {
+        coordinator.navigationController.dismiss(animated: true)
     }
-
-    func didDeleteAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        storage.deleteAll()
-        delegate?.didUpdateAccounts(in: self)
-        guard !coordinator.accountsViewController.hasWallets else { return }
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        delegate?.didCancel(in: self)
+    
+    func didUpdateAccounts(in coordinator: WalletsCoordinator) {
+        //Refactor
+        coordinator.navigationController.dismiss(animated: true)
     }
-
-    func didCancel(in coordinator: AccountsCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
-    }
-
-    func didSelectAccount(account: Wallet, in coordinator: AccountsCoordinator) {
-        coordinator.navigationController.dismiss(animated: true, completion: nil)
-        removeCoordinator(coordinator)
-        restart(for: account, tab: Tabs.settings)
-        // showTab(.settings)
+    
+    func didSelect(wallet: WalletInfo, in coordinator: WalletsCoordinator) {
+        coordinator.navigationController.removeChildCoordinators()
+        delegate?.didRestart(with: wallet, tab: Tabs.settings, in: self)
     }
 }
+//extension SettingsCoordinator: WalletsCoordinatorDelegate {
+//    func didCancel(in coordinator: WalletsCoordinator) {
+//        coordinator.navigationController.dismiss(animated: true)
+//    }
+//
+//    func didUpdateAccounts(in coordinator: WalletsCoordinator) {
+//        //Refactor
+//        coordinator.navigationController.dismiss(animated: true)
+//    }
+//
+//    func didSelectAccount(wallet: WalletInfo, in coordinator: WalletsCoordinator) {
+//        coordinator.navigationController.removeChildCoordinators()
+//        delegate?.didRestart(with: wallet, in: self)
+//    }
+//}

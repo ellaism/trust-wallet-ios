@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustCore
@@ -10,16 +10,14 @@ enum WalletAction {
 
 enum Tabs {
     case browser(openURL: URL?)
-    case transactions
     case wallet(WalletAction)
     case settings
 
     var index: Int {
         switch self {
         case .wallet: return 0
-        case .transactions: return 1
+        case .browser: return 1
         case .settings: return 2
-        case .browser: return 3
         }
     }
 }
@@ -29,12 +27,10 @@ extension Tabs: Equatable {
         switch (lhs, rhs) {
         case (let .browser(lhs), let .browser(rhs)):
             return lhs == rhs
-        case (.transactions, .transactions),
-             (.wallet, .wallet),
+        case (.wallet, .wallet),
              (.settings, .settings):
             return true
         case (_, .browser),
-             (_, .transactions),
              (_, .wallet),
              (_, .settings):
             return false

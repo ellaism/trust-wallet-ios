@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class ProtectionCoordinator: Coordinator {
+final class ProtectionCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     lazy var splashCoordinator: SplashCoordinator = {
         return SplashCoordinator(window: self.protectionWindow)

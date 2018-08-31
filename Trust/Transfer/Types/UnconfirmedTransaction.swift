@@ -1,13 +1,13 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import BigInt
 import TrustCore
 
 struct UnconfirmedTransaction {
-    let transferType: TransferType
+    let transfer: Transfer
     let value: BigInt
-    let to: Address?
+    let to: EthereumAddress?
     let data: Data?
 
     let gasLimit: BigInt?

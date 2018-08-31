@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class LockCreatePasscodeViewController: LockPasscodeViewController {
+final class LockCreatePasscodeViewController: LockPasscodeViewController {
     private lazy var lockCreatePasscodeViewModel: LockCreatePasscodeViewModel? = {
         return self.model as? LockCreatePasscodeViewModel
     }()

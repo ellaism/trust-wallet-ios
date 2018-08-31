@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -18,13 +18,13 @@ enum BookmarksViewType: Int {
     case history
 }
 
-class MasterBrowserViewController: UIViewController {
+final class MasterBrowserViewController: UIViewController {
 
     private lazy var segmentController: UISegmentedControl = {
         let items = [
-            NSLocalizedString("New", value: "New", comment: ""),
-            NSLocalizedString("Bookmarks", value: "Bookmarks", comment: ""),
-            NSLocalizedString("History", value: "History", comment: ""),
+            R.string.localizable.new(),
+            R.string.localizable.bookmarks(),
+            R.string.localizable.history(),
         ]
         let segmentedControl = UISegmentedControl(items: items)
         segmentedControl.addTarget(self, action: #selector(selectionDidChange(_:)), for: .valueChanged)

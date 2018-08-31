@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustKeystore
@@ -6,30 +6,18 @@ import TrustKeystore
 struct ExportPhraseViewModel {
 
     let keystore: Keystore
-    let account: Account
+    let account: Wallet
 
     init(
         keystore: Keystore,
-        account: Account
+        account: Wallet
     ) {
         self.keystore = keystore
         self.account = account
     }
 
     var title: String {
-        return NSLocalizedString("Recovery Phrase", value: "Recovery Phrase", comment: "")
-    }
-
-    var headlineText: String {
-        return NSLocalizedString("export.warning.private.key", value: "Export at your own risk!", comment: "")
-    }
-
-    var words: [String] {
-        return []
-    }
-
-    var warningText: String {
-        return NSLocalizedString("export.warningTwo.private.key", value: "Anyone with your recovery phrase will have FULL access to your wallet!", comment: "")
+        return R.string.localizable.backupPhrase()
     }
 
     var backgroundColor: UIColor {

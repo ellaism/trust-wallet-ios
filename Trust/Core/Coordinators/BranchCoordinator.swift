@@ -1,9 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import Branch
 
-class BranchCoordinator {
+final class BranchCoordinator {
 
     private struct Keys {
         static let isFirstSession = "is_first_session"

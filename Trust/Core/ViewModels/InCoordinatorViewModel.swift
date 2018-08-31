@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -24,14 +24,6 @@ struct InCoordinatorViewModel {
         return UITabBarItem(
             title: NSLocalizedString("browser.tabbar.item.title", value: "Browser", comment: ""),
             image: R.image.dapps_icon(),
-            selectedImage: nil
-        )
-    }
-
-    var transactionsBarItem: UITabBarItem {
-        return UITabBarItem(
-            title: NSLocalizedString("transactions.tabbar.item.title", value: "Transactions", comment: ""),
-            image: R.image.feed(),
             selectedImage: nil
         )
     }

@@ -1,9 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import LocalAuthentication
 
-class LockEnterPasscodeViewController: LockPasscodeViewController {
+final class LockEnterPasscodeViewController: LockPasscodeViewController {
     private lazy var lockEnterPasscodeViewModel: LockEnterPasscodeViewModel = {
         return self.model as! LockEnterPasscodeViewModel
     }()
@@ -19,9 +19,11 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
         if lock.incorrectMaxAttemptTimeIsSet() {
             lockView.lockTitle.text = lockEnterPasscodeViewModel.tryAfterOneMinute
             maxAttemptTimerValidation()
+        } else {
+            showBiometricAuth()
         }
     }
-    func showBioMerickAuth() {
+    private func showBiometricAuth() {
         self.context = LAContext()
         self.touchValidation()
     }
@@ -54,8 +56,13 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
         self.hideKeyboard()
     }
     private func maxAttemptTimerValidation() {
+        // if there is no recordedMaxAttemptTime user has logged successfuly previous time
+        guard let maxAttemptTimer = lock.recordedMaxAttemptTime() else {
+            self.lockView.lockTitle.text = lockEnterPasscodeViewModel.initialLabelText
+            self.showKeyboard()
+            return
+        }
         let now = Date()
-        let maxAttemptTimer = lock.recordedMaxAttemptTime()
         let interval = now.timeIntervalSince(maxAttemptTimer)
         //if interval is greater or equal 60 seconds we give 1 attempt.
         if interval >= 60 {
@@ -71,7 +78,6 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
         if let unlock = unlockWithResult {
             unlock(success, bioUnlock)
         }
-
     }
     private func canEvaluatePolicy() -> Bool {
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
@@ -90,7 +96,7 @@ class LockEnterPasscodeViewController: LockPasscodeViewController {
                     self.lockView.lockTitle.text = self.lockEnterPasscodeViewModel.initialLabelText
                     self.unlock(withResult: true, bioUnlock: true)
                  } else {
-                    self.showKeyboard()
+                    self.maxAttemptTimerValidation()
                 }
             }
         }

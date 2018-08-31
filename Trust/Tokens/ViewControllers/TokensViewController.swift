@@ -1,8 +1,7 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
-import StatefulViewController
 import Result
 import TrustCore
 import RealmSwift
@@ -10,12 +9,10 @@ import RealmSwift
 protocol TokensViewControllerDelegate: class {
     func didPressAddToken( in viewController: UIViewController)
     func didSelect(token: TokenObject, in viewController: UIViewController)
-    func didDelete(token: TokenObject, in viewController: UIViewController)
-    func didEdit(token: TokenObject, in viewController: UIViewController)
-    func didDisable(token: TokenObject, in viewController: UIViewController)
+    func didRequest(token: TokenObject, in viewController: UIViewController)
 }
 
-class TokensViewController: UIViewController {
+final class TokensViewController: UIViewController {
 
     fileprivate var viewModel: TokensViewModel
 
@@ -41,62 +38,46 @@ class TokensViewController: UIViewController {
         return footer
     }()
 
-    lazy var footerView: TransactionsFooterView = {
-        let footerView = TransactionsFooterView(
-            frame: .zero
-        )
-        footerView.translatesAutoresizingMaskIntoConstraints = false
-        footerView.setTopBorder()
-        return footerView
+    lazy var tableView: UITableView = {
+        let tableView = UITableView(frame: .zero, style: .plain)
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        tableView.separatorStyle = .singleLine
+        tableView.separatorColor = StyleLayout.TableView.separatorColor
+        tableView.backgroundColor = .white
+        tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
+        tableView.tableHeaderView = header
+        tableView.tableFooterView = footer
+        tableView.addSubview(refreshControl)
+        return tableView
     }()
 
-    let tableView: UITableView
     let refreshControl = UIRefreshControl()
     weak var delegate: TokensViewControllerDelegate?
     var etherFetchTimer: Timer?
     let intervalToETHRefresh = 10.0
 
+    lazy var fetchClosure: () -> Void = {
+        return debounce(delay: .seconds(7), action: { [weak self] () in
+            self?.viewModel.fetch()
+        })
+    }()
+
     init(
         viewModel: TokensViewModel
     ) {
         self.viewModel = viewModel
-        tableView = UITableView(frame: .zero, style: .plain)
         super.init(nibName: nil, bundle: nil)
         self.viewModel.delegate = self
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.separatorStyle = .singleLine
-        tableView.separatorColor = StyleLayout.TableView.separatorColor
-        tableView.backgroundColor = .white
         view.addSubview(tableView)
-        view.addSubview(footerView)
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.topAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: footerView.topAnchor),
-
-            footerView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            footerView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            footerView.bottomAnchor.constraint(equalTo: view.layoutGuide.bottomAnchor),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
-        tableView.register(TokenViewCell.self, forCellReuseIdentifier: TokenViewCell.identifier)
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
-        tableView.addSubview(refreshControl)
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.startLoading()
-            self?.fetch()
-        })
-        loadingView = LoadingView()
-        emptyView = EmptyView(
-            title: NSLocalizedString("emptyView.noTokens.label.title", value: "You haven't received any tokens yet!", comment: ""),
-            onRetry: { [weak self] in
-                self?.startLoading()
-                self?.fetch()
-        })
-        tableView.tableHeaderView = header
-        tableView.tableFooterView = footer
         sheduleBalanceUpdate()
         NotificationCenter.default.addObserver(self, selector: #selector(TokensViewController.resignActive), name: .UIApplicationWillResignActive, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(TokensViewController.didBecomeActive), name: .UIApplicationDidBecomeActive, object: nil)
@@ -108,22 +89,26 @@ class TokensViewController: UIViewController {
         title = viewModel.title
         view.backgroundColor = viewModel.backgroundColor
         footer.textLabel.text = viewModel.footerTitle
+
+        fetch(force: true)
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.applyTintAdjustment()
-        fetch()
     }
 
     @objc func pullToRefresh() {
         refreshControl.beginRefreshing()
-        fetch()
+        fetch(force: true)
     }
 
-    func fetch() {
-        self.startLoading()
-        self.viewModel.fetch()
+    func fetch(force: Bool = false) {
+        if force {
+            viewModel.fetch()
+        } else {
+            fetchClosure()
+        }
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -147,13 +132,9 @@ class TokensViewController: UIViewController {
                 tableView.reloadData()
             case .update:
                 self?.tableView.reloadData()
-                self?.endLoading()
-            case .error(let error):
-                self?.endLoading(animated: true, error: error, completion: nil)
+            case .error: break
             }
-            if strongSelf.refreshControl.isRefreshing {
-                strongSelf.refreshControl.endRefreshing()
-            }
+            strongSelf.refreshControl.endRefreshing()
             self?.refreshHeaderView()
         }
     }
@@ -171,7 +152,9 @@ class TokensViewController: UIViewController {
 
     private func sheduleBalanceUpdate() {
         guard etherFetchTimer == nil else { return }
-        etherFetchTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in self?.viewModel.updateEthBalance() }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
+        etherFetchTimer = Timer.scheduledTimer(timeInterval: intervalToETHRefresh, target: BlockOperation { [weak self] in
+            self?.viewModel.updatePendingTransactions()
+        }, selector: #selector(Operation.main), userInfo: nil, repeats: true)
     }
 
     private func stopTokenObservation() {
@@ -184,37 +167,26 @@ class TokensViewController: UIViewController {
         stopTokenObservation()
     }
 }
-extension TokensViewController: StatefulViewController {
-    func hasContent() -> Bool {
-        return viewModel.hasContent
-    }
-}
+
 extension TokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         let token = viewModel.item(for: indexPath)
         delegate?.didSelect(token: token, in: self)
     }
-    func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
-        let token = viewModel.item(for: indexPath)
-        let delete = UITableViewRowAction(style: .destructive, title: NSLocalizedString("Delete", value: "Delete", comment: "")) {[unowned self] (_, _) in
-            self.delegate?.didDelete(token: token, in: self)
-        }
-        let edit = UITableViewRowAction(style: .normal, title: NSLocalizedString("Edit", value: "Edit", comment: "")) {[unowned self] (_, _) in
-            self.delegate?.didEdit(token: token, in: self)
-        }
-        let disable = UITableViewRowAction(style: .normal, title: NSLocalizedString("Disable", value: "Disable", comment: "")) {[unowned self] (_, _) in
-            self.delegate?.didDisable(token: token, in: self)
-        }
 
-        if viewModel.canEdit(for: indexPath) {
-            return [delete, disable, edit]
-        } else if viewModel.canDisable(for: indexPath) {
-            return [disable]
-        } else {
-            return []
+    @available(iOS 11.0, *)
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let token = viewModel.item(for: indexPath)
+        let deleteAction = UIContextualAction(style: .normal, title: R.string.localizable.transactionsReceiveButtonTitle()) { _, _, handler in
+            self.delegate?.didRequest(token: token, in: self)
+            handler(true)
         }
+        deleteAction.backgroundColor = Colors.lightBlue
+        let configuration = UISwipeActionsConfiguration(actions: [deleteAction])
+        return configuration
     }
+
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return TokensLayout.tableView.height
     }
@@ -222,18 +194,25 @@ extension TokensViewController: UITableViewDelegate {
 extension TokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: TokenViewCell.identifier, for: indexPath) as! TokenViewCell
-        cell.configure(viewModel: viewModel.cellViewModel(for: indexPath))
-        cell.contentView.isExclusiveTouch = true
         cell.isExclusiveTouch = true
         return cell
     }
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return viewModel.tokens.count
     }
+    func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+       guard let tokenViewCell = cell as? TokenViewCell else { return }
+       tokenViewCell.configure(viewModel: viewModel.cellViewModel(for: indexPath))
+    }
 }
 extension TokensViewController: TokensViewModelDelegate {
     func refresh() {
         self.tableView.reloadData()
         self.refreshHeaderView()
+    }
+}
+extension TokensViewController: Scrollable {
+    func scrollOnTop() {
+        tableView.scrollOnTop()
     }
 }

@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class SplashCoordinator: Coordinator {
+final class SplashCoordinator: Coordinator {
     var coordinators: [Coordinator] = []
     private let window: UIWindow
     init(window: UIWindow) {

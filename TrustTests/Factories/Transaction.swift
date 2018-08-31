@@ -1,13 +1,14 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 @testable import Trust
+import TrustCore
 
-extension Transaction {
+extension Trust.Transaction {
     static func make(
         id: String = "0x1",
         blockNumber: Int = 1,
-        from: String = "0x1000000000000000000000000000000000000000",
+        from: String = "0x0000000000000000000000000000000000000001",
         to: String = "0x1",
         value: String = "1",
         gas: String = "0x1",
@@ -15,10 +16,11 @@ extension Transaction {
         gasUsed: String = "0x1",
         nonce: Int = 0,
         date: Date = Date(),
+        coin: Coin = .ethereum,
         localizedOperations: [LocalizedOperationObject] = [],
         state: TransactionState = .completed
-    ) -> Transaction {
-        return Transaction(
+    ) -> Trust.Transaction {
+        return Trust.Transaction(
             id: id,
             blockNumber: blockNumber,
             from: from,
@@ -29,6 +31,7 @@ extension Transaction {
             gasUsed: gasUsed,
             nonce: nonce,
             date: date,
+            coin: coin,
             localizedOperations: localizedOperations,
             state: state
         )

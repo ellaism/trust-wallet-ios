@@ -1,29 +1,26 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 
 struct EditTokenTableCellViewModel {
 
-    let token: TokenObject
-    let coinTicker: CoinTicker?
-    let config: Config
-    let isLocal: Bool
+    private let viewModel: TokenObjectViewModel
+    private let coinTicker: CoinTicker?
+    private let isLocal: Bool
 
     init(
-        token: TokenObject,
+        viewModel: TokenObjectViewModel,
         coinTicker: CoinTicker?,
-        config: Config,
         isLocal: Bool = true
     ) {
-        self.token = token
+        self.viewModel = viewModel
         self.coinTicker = coinTicker
-        self.config = config
         self.isLocal = isLocal
     }
 
     var title: String {
-        return token.title
+        return viewModel.title
     }
 
     var titleFont: UIFont {
@@ -35,30 +32,24 @@ struct EditTokenTableCellViewModel {
     }
 
     var placeholderImage: UIImage? {
-        return R.image.ethereum_logo_256()
+        return viewModel.placeholder
     }
 
     var imageUrl: URL? {
-        return token.imageURL
+        return viewModel.imageURL
     }
 
     var isEnabled: Bool {
-        return !token.isDisabled
-    }
-
-    private var isAvailableForChange: Bool {
-        // One version had an option to disable ETH token. Adding functionality to enable it back.
-        if token.contract == TokensDataStore.etherToken(for: config).contract && token.isDisabled == true {
-            return false
-        }
-        return token.contract == TokensDataStore.etherToken(for: config).contract ? true : false
+        return !viewModel.token.isDisabled
     }
 
     var contractText: String? {
-        if !isAvailableForChange {
-            return token.contract
+        switch viewModel.token.type {
+        case .coin:
+            return .none
+        case .ERC20:
+            return viewModel.token.contract + " (ERC20) "
         }
-        return .none
     }
 
     var isTokenContractLabelHidden: Bool {
@@ -69,6 +60,6 @@ struct EditTokenTableCellViewModel {
     }
 
     var isSwitchHidden: Bool {
-        return isAvailableForChange || !isLocal
+        return !isLocal
     }
 }

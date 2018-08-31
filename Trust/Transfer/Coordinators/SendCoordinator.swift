@@ -1,114 +1,94 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
 import BigInt
 import TrustCore
 import TrustKeystore
+import Result
 
 protocol SendCoordinatorDelegate: class {
-    func didFinish(_ result: ConfirmResult, in coordinator: SendCoordinator)
-    func didCancel(in coordinator: SendCoordinator)
+    func didFinish(_ result: Result<ConfirmResult, AnyError>, in coordinator: SendCoordinator)
 }
 
-class SendCoordinator: Coordinator {
-
-    let transferType: TransferType
+final class SendCoordinator: RootCoordinator {
+    let transfer: Transfer
     let session: WalletSession
     let account: Account
     let navigationController: NavigationController
     let keystore: Keystore
-    let storage: TokensDataStore
     var coordinators: [Coordinator] = []
     weak var delegate: SendCoordinatorDelegate?
-    lazy var sendViewController: SendViewController = {
-        return self.makeSendViewController()
+    var rootViewController: UIViewController {
+        return controller
+    }
+
+    private lazy var controller: SendViewController = {
+        let controller = SendViewController(
+            session: session,
+            storage: session.tokensStorage,
+            account: account,
+            transfer: transfer,
+            chainState: chainState
+        )
+        controller.navigationItem.backBarButtonItem = nil
+        controller.hidesBottomBarWhenPushed = true
+        switch transfer.type {
+        case .ether(_, let destination):
+            controller.addressRow?.value = destination?.description
+            controller.addressRow?.cell.row.updateCell()
+        case .token, .dapp: break
+        }
+        controller.delegate = self
+        return controller
+    }()
+
+    lazy var chainState: ChainState = {
+        let state = ChainState(server: transfer.server)
+        state.fetch()
+        return state
     }()
 
     init(
-        transferType: TransferType,
+        transfer: Transfer,
         navigationController: NavigationController = NavigationController(),
         session: WalletSession,
         keystore: Keystore,
-        storage: TokensDataStore,
         account: Account
     ) {
-        self.transferType = transferType
+        self.transfer = transfer
         self.navigationController = navigationController
         self.navigationController.modalPresentationStyle = .formSheet
         self.session = session
         self.account = account
         self.keystore = keystore
-        self.storage = storage
-    }
-
-    func start() {
-        navigationController.viewControllers = [sendViewController]
-    }
-
-    func makeSendViewController() -> SendViewController {
-        let controller = SendViewController(
-            session: session,
-            storage: storage,
-            account: account,
-            transferType: transferType
-        )
-        controller.navigationItem.titleView = BalanceTitleView.make(from: self.session, transferType)
-        controller.navigationItem.leftBarButtonItem = UIBarButtonItem(barButtonSystemItem: .cancel, target: self, action: #selector(dismiss))
-        controller.navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: NSLocalizedString("Next", value: "Next", comment: ""),
-            style: .done,
-            target: controller,
-            action: #selector(SendViewController.send)
-        )
-        switch transferType {
-        case .ether(let destination):
-            controller.addressRow?.value = destination?.description
-            controller.addressRow?.cell.row.updateCell()
-        case .token, .dapp, .nft: break
-        }
-        controller.delegate = self
-        return controller
-    }
-
-    @objc func dismiss() {
-        delegate?.didCancel(in: self)
     }
 }
 
 extension SendCoordinator: SendViewControllerDelegate {
-    func didPressConfirm(transaction: UnconfirmedTransaction, transferType: TransferType, in viewController: SendViewController) {
+    func didPressConfirm(transaction: UnconfirmedTransaction, transfer: Transfer, in viewController: SendViewController) {
         let configurator = TransactionConfigurator(
             session: session,
             account: account,
-            transaction: transaction
+            transaction: transaction,
+            server: transfer.server,
+            chainState: ChainState(server: transfer.server)
         )
 
-//        let coordinator = ConfirmCoordinator(
-//            navigationController: navigationController,
-//            session: session,
-//            configurator: configurator,
-//            keystore: keystore,
-//            account: account,
-//            type: .signThenSend
-//        )
-//        coordinator.start()
-//        addCoordinator(coordinator)
-
-        let controller = ConfirmPaymentViewController(
+        let coordinator = ConfirmCoordinator(
+            navigationController: navigationController,
             session: session,
-            keystore: keystore,
             configurator: configurator,
-            confirmType: .signThenSend
+            keystore: keystore,
+            account: account,
+            type: .signThenSend,
+            server: transfer.server
         )
-        controller.didCompleted = { result in
-            switch result {
-            case .success(let type):
-                self.delegate?.didFinish(type, in: self)
-            case .failure(let error):
-                self.navigationController.displayError(error: error)
-            }
+        coordinator.didCompleted = { [weak self] result in
+            guard let `self` = self else { return }
+            self.delegate?.didFinish(result, in: self)
         }
-        navigationController.pushViewController(controller, animated: true)
+        addCoordinator(coordinator)
+        navigationController.pushCoordinator(coordinator: coordinator, animated: true)
     }
 }

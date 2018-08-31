@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
@@ -70,7 +70,7 @@ enum Currency: String {
         TRY,
         TWD,
         ZAR,
-        BTC
+        BTC,
     ]
 
     init(value: String) {
@@ -83,7 +83,11 @@ class CurrencyManager {
 
 extension CurrencyManager {
     static func getSymbolForCurrencyCode(code: String) -> String? {
-        let locale = NSLocale(localeIdentifier: code)
-        return locale.displayName(forKey: NSLocale.Key.identifier, value: code)
+        if (code == "BTC") {
+            return R.string.localizable.bitcoin()
+        } else {
+            let locale = NSLocale(localeIdentifier: code)
+            return locale.displayName(forKey: NSLocale.Key.identifier, value: code)
+        }
     }
 }

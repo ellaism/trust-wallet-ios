@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -16,7 +16,7 @@ protocol SignMessageCoordinatorDelegate: class {
     func didCancel(in coordinator: SignMessageCoordinator)
 }
 
-class SignMessageCoordinator: Coordinator {
+final class SignMessageCoordinator: Coordinator {
 
     var coordinators: [Coordinator] = []
 
@@ -44,18 +44,18 @@ class SignMessageCoordinator: Coordinator {
 
     private func makeAlertController(with type: SignMesageType) -> UIAlertController {
         let alertController = UIAlertController(
-            title: NSLocalizedString("", value: "Confirm signing this message:", comment: ""),
+            title: NSLocalizedString("Confirm signing this message:", value: "Confirm signing this message:", comment: ""),
             message: message(for: type),
             preferredStyle: .alert
         )
         let signAction = UIAlertAction(
-            title: NSLocalizedString("OK", value: "OK", comment: ""),
+            title: R.string.localizable.oK(),
             style: .default
         ) { [weak self] _ in
             guard let `self` = self else { return }
             self.handleSignedMessage(with: type)
         }
-        let cancelAction = UIAlertAction(title: NSLocalizedString("Cancel", value: "Cancel", comment: ""), style: .cancel) { [weak self] _ in
+        let cancelAction = UIAlertAction(title: R.string.localizable.cancel(), style: .cancel) { [weak self] _ in
             guard let `self` = self else { return }
             self.didComplete?(.failure(AnyError(DAppError.cancelled)))
             self.delegate?.didCancel(in: self)

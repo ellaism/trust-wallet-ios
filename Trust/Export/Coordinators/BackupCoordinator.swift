@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import UIKit
@@ -11,7 +11,7 @@ protocol BackupCoordinatorDelegate: class {
     func didFinish(wallet: Wallet, in coordinator: BackupCoordinator)
 }
 
-class BackupCoordinator: Coordinator {
+final class BackupCoordinator: Coordinator {
 
     let navigationController: NavigationController
     weak var delegate: BackupCoordinatorDelegate?
@@ -37,18 +37,14 @@ class BackupCoordinator: Coordinator {
     func finish(result: Result<Bool, AnyError>) {
         switch result {
         case .success:
-            if result.value == true {
-                delegate?.didFinish(wallet: Wallet(type: .privateKey(account)), in: self)
-            } else {
-                delegate?.didCancel(coordinator: self)
-            }
+           delegate?.didFinish(wallet: account.wallet!, in: self)
         case .failure:
             delegate?.didCancel(coordinator: self)
         }
     }
 
     func presentActivityViewController(for account: Account, password: String, newPassword: String, completion: @escaping (Result<Bool, AnyError>) -> Void) {
-        navigationController.displayLoading(
+        navigationController.topViewController?.displayLoading(
             text: NSLocalizedString("export.presentBackupOptions.label.title", value: "Preparing backup options...", comment: "")
         )
         keystore.export(account: account, password: password, newPassword: newPassword) { [weak self] result in
@@ -77,14 +73,16 @@ class BackupCoordinator: Coordinator {
                 }
                 completion(.failure(AnyError(error)))
             }
-            activityViewController.popoverPresentationController?.sourceView = navigationController.view
-            activityViewController.popoverPresentationController?.sourceRect = navigationController.view.centerRect
-            navigationController.present(activityViewController, animated: true) { [unowned self] in
-                self.navigationController.hideLoading()
+            let presenterViewController = navigationController.topViewController
+
+            activityViewController.popoverPresentationController?.sourceView = presenterViewController?.view
+            activityViewController.popoverPresentationController?.sourceRect = presenterViewController?.view.centerRect ?? .zero
+            presenterViewController?.present(activityViewController, animated: true) { [weak presenterViewController] in
+                presenterViewController?.hideLoading()
             }
         case .failure(let error):
-            navigationController.hideLoading()
-            navigationController.displayError(error: error)
+            navigationController.topViewController?.hideLoading()
+            navigationController.topViewController?.displayError(error: error)
         }
     }
 
@@ -111,7 +109,7 @@ extension BackupCoordinator: EnterPasswordCoordinatorDelegate {
 
     func didEnterPassword(password: String, account: Account, in coordinator: EnterPasswordCoordinator) {
         coordinator.navigationController.dismiss(animated: true) { [unowned self] in
-            if let currentPassword = self.keystore.getPassword(for: account) {
+            if let currentPassword = self.keystore.getPassword(for: account.wallet!) {
                 self.presentShareActivity(for: account, password: currentPassword, newPassword: password)
             } else {
                 self.presentShareActivity(for: account, password: password, newPassword: password)

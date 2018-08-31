@@ -1,9 +1,9 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import RealmSwift
 
-class HistoryStore {
+final class  HistoryStore {
     var histories: Results<History> {
         return realm.objects(History.self)
             .sorted(byKeyPath: "createdAt", ascending: false)

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import StatefulViewController
@@ -7,9 +7,10 @@ import PromiseKit
 
 protocol NonFungibleTokensViewControllerDelegate: class {
     func didPressDiscover()
+    func didPress(token: CollectibleTokenObject, with bacground: UIColor)
 }
 
-class NonFungibleTokensViewController: UIViewController {
+final class NonFungibleTokensViewController: UIViewController {
 
     private var viewModel: NonFungibleTokenViewModel
     let tableView: UITableView
@@ -38,17 +39,19 @@ class NonFungibleTokensViewController: UIViewController {
         ])
         refreshControl.addTarget(self, action: #selector(pullToRefresh), for: .valueChanged)
         tableView.addSubview(refreshControl)
-        errorView = ErrorView(onRetry: { [weak self] in
-            self?.fetch()
-        })
+        errorView = ErrorView(
+            onRetry: { [weak self] in
+                self?.fetch()
+            }
+        )
         loadingView = LoadingView()
         emptyView = EmptyView(
             title: NSLocalizedString("emptyView.noNonTokens.label.title", value: "No Collectibles Found", comment: ""),
-            actionTitle: NSLocalizedString("collectibles.discover.label.title", value: "Explore on OpenSea.io", comment: ""),
             onRetry: { [weak self] in
-                self?.delegate?.didPressDiscover()
-        })
-        fetch()
+                self?.fetch()
+            }
+        )
+        title = viewModel.title
     }
 
     required init?(coder aDecoder: NSCoder) {
@@ -58,6 +61,8 @@ class NonFungibleTokensViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         self.navigationController?.applyTintAdjustment()
+
+        fetch()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -71,6 +76,7 @@ class NonFungibleTokensViewController: UIViewController {
     }
 
     func fetch() {
+        startLoading()
         firstly {
             viewModel.fetchAssets()
         }.done { [weak self] _ in
@@ -96,7 +102,7 @@ extension NonFungibleTokensViewController: StatefulViewController {
 
 extension NonFungibleTokensViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 250
+        return viewModel.cellHeight
     }
 
     func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
@@ -108,6 +114,7 @@ extension NonFungibleTokensViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: R.nib.nonFungibleTokenViewCell.name, for: indexPath) as! NonFungibleTokenViewCell
         cell.configure(viewModel: viewModel.cellViewModel(for: indexPath))
+        cell.delegate = delegate
         return cell
     }
 

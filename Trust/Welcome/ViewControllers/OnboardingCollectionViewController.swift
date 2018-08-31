@@ -1,8 +1,8 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
-class OnboardingCollectionViewController: UICollectionViewController {
+final class OnboardingCollectionViewController: UICollectionViewController {
     var pages = [OnboardingPageViewModel]()
     weak var pageControl: UIPageControl?
 

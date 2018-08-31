@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import TrustCore
@@ -39,13 +39,15 @@ class AppCoordinator: NSObject, Coordinator {
 
     func start() {
         inializers()
+        migrations()
         appTracker.start()
         handleNotifications()
         applyStyle()
         resetToWelcomeScreen()
 
         if keystore.hasWallets {
-            showTransactions(for: keystore.recentlyUsedWallet ?? keystore.wallets.first!)
+            let wallet = keystore.recentlyUsedWallet ?? keystore.wallets.first!
+            showTransactions(for: wallet)
         } else {
             resetToWelcomeScreen()
         }
@@ -57,7 +59,7 @@ class AppCoordinator: NSObject, Coordinator {
 //        }
     }
 
-    func showTransactions(for wallet: Wallet) {
+    func showTransactions(for wallet: WalletInfo) {
         let coordinator = InCoordinator(
             navigationController: navigationController,
             wallet: wallet,
@@ -80,8 +82,6 @@ class AppCoordinator: NSObject, Coordinator {
         paths.append(keystore.keysDirectory)
 
         let initializers: [Initializer] = [
-            CrashReportInitializer(),
-            LokaliseInitializer(),
             SkipBackupFilesInitializer(paths: paths),
         ]
         initializers.forEach { $0.perform() }
@@ -89,6 +89,36 @@ class AppCoordinator: NSObject, Coordinator {
         if !keystore.hasWallets {
            lock.clear()
         }
+    }
+
+    private func migrations() {
+        let multiCoinCigration = MultiCoinMigration(keystore: keystore, appTracker: appTracker)
+        let run = multiCoinCigration.start()
+        if run {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                self.showMigrationMessage()
+            }
+        }
+    }
+
+    private func showMigrationMessage() {
+        let alertController = UIAlertController(
+            title: "Great News! Big Update! 🚀",
+            message: "We have made a huge progress towards supporting and simplifying management of your tokens across blockchains. \n\nTake a look on how to create Multi-Coin Wallet in Trust!",
+            preferredStyle: UIAlertControllerStyle.alert
+        )
+        alertController.popoverPresentationController?.sourceView = self.navigationController.view
+        alertController.addAction(
+            UIAlertAction(
+                title: R.string.localizable.learnMore(),
+                style: UIAlertActionStyle.default,
+                handler: { [weak self] _ in
+                    let url = URL(string: "https://medium.com/p/fa50f258274b")
+                    self?.inCoordinator?.showTab(.browser(openURL: url))
+                }
+            )
+        )
+        navigationController.present(alertController, animated: true, completion: nil)
     }
 
     func handleNotifications() {
@@ -106,14 +136,28 @@ class AppCoordinator: NSObject, Coordinator {
         coordinators.removeAll()
         CookiesStore.delete()
         navigationController.dismiss(animated: true, completion: nil)
+        navigationController.viewControllers.removeAll()
         resetToWelcomeScreen()
     }
 
     func didRegisterForRemoteNotificationsWithDeviceToken(deviceToken: Data) {
         pushNotificationRegistrar.didRegister(
             with: deviceToken,
-            addresses: keystore.wallets.map { $0.address }
+            networks: networks(for: keystore.wallets)
         )
+    }
+
+    private func networks(for wallets: [WalletInfo]) -> [Int: [String]] {
+        var result: [Int: [String]] = [:]
+        wallets.forEach { wallet in
+            for account in wallet.accounts {
+                guard let coin = account.coin else { break }
+                var elements: [String] = result[coin.rawValue] ?? []
+                elements.append(account.address.description)
+                result[coin.rawValue] = elements
+            }
+        }
+        return result
     }
 
     func showInitialWalletCoordinator(entryPoint: WalletEntryPoint) {
@@ -144,7 +188,7 @@ extension AppCoordinator: InitialWalletCreationCoordinatorDelegate {
         removeCoordinator(coordinator)
     }
 
-    func didAddAccount(_ account: Wallet, in coordinator: InitialWalletCreationCoordinator) {
+    func didAddAccount(_ account: WalletInfo, in coordinator: InitialWalletCreationCoordinator) {
         coordinator.navigationController.dismiss(animated: true, completion: nil)
         removeCoordinator(coordinator)
         showTransactions(for: account)

@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 
@@ -6,7 +6,7 @@ protocol BrowserNavigationBarDelegate: class {
     func did(action: BrowserNavigation)
 }
 
-class BrowserNavigationBar: UINavigationBar {
+final class BrowserNavigationBar: UINavigationBar {
 
     let textField = UITextField()
     let moreButton = UIButton()
@@ -69,8 +69,8 @@ class BrowserNavigationBar: UINavigationBar {
 
         NSLayoutConstraint.activate([
             stackView.topAnchor.constraint(equalTo: topAnchor, constant: 4),
-            stackView.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 10),
-            stackView.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -10),
+            stackView.leadingAnchor.constraint(equalTo: layoutGuide.leadingAnchor, constant: 10),
+            stackView.trailingAnchor.constraint(equalTo: layoutGuide.trailingAnchor, constant: -10),
             stackView.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -6),
 
             homeButton.widthAnchor.constraint(equalToConstant: Layout.width),

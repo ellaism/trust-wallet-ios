@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import UIKit
 import WebKit
@@ -9,7 +9,7 @@ enum CookiesStoreError: LocalizedError {
     case empty
 }
 
-class CookiesStore {
+final class CookiesStore {
 
     private static let webKitStorage = WKWebsiteDataStore.default()
     private static let httpCookieStorage = HTTPCookieStorage.shared
@@ -22,7 +22,7 @@ class CookiesStore {
             fetchCookies()
         }.done { cookies in
             save(cookies: cookies)
-        }
+        }.catch { _ in }
     }
 
     static func load() {

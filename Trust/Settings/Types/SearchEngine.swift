@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 
@@ -13,9 +13,9 @@ enum SearchEngine: Int {
     var title: String {
         switch self {
         case .google:
-            return NSLocalizedString("Google", value: "Google", comment: "")
+            return R.string.localizable.google()
         case .duckDuckGo:
-            return NSLocalizedString("DuckDuckGo", value: "DuckDuckGo", comment: "")
+            return R.string.localizable.duckDuckGo()
         }
     }
 

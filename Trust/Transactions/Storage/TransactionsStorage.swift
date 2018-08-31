@@ -1,4 +1,4 @@
-// Copyright SIX DAY LLC. All rights reserved.
+// Copyright DApps Platform Inc. All rights reserved.
 
 import Foundation
 import RealmSwift
@@ -13,28 +13,34 @@ class TransactionsStorage {
 
     let realm: Realm
 
-    var transactionsUpdateHandler: () -> Void = {}
-
     var transactions: Results<Transaction> {
         return realm.objects(Transaction.self).filter(NSPredicate(format: "id!=''")).sorted(byKeyPath: "date", ascending: false)
     }
-    var latestTransaction: Transaction? {
-        return realm.objects(Transaction.self)
-            .filter(NSPredicate(format: "from == %@", account.address.description))
-            .sorted(byKeyPath: "nonce", ascending: false)
-            .first
-    }
+
+    let titleFormmater: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "MMM d yyyy"
+        return formatter
+    }()
 
     var transactionSections: [TransactionSection] = []
 
     private var transactionsObserver: NotificationToken?
-    let account: Wallet
+
+    let account: WalletInfo
     init(
         realm: Realm,
-        account: Wallet
+        account: WalletInfo
     ) {
         self.realm = realm
         self.account = account
+    }
+
+    func latestTransaction(for address: Address, coin: Coin) -> Transaction? {
+        return transactions
+            .filter(NSPredicate(format: "from == %@ && rawCoin == %d", address.description, coin.rawValue))
+            .sorted(byKeyPath: "nonce", ascending: false)
+            .first
     }
 
     var completedObjects: [Transaction] {
@@ -59,7 +65,7 @@ class TransactionsStorage {
         let tokens: [Token] = transactions.compactMap { transaction in
             guard
                 let operation = transaction.localizedOperations.first,
-                let contract = Address(string: operation.contract ?? ""),
+                let contract = EthereumAddress(string: operation.contract ?? ""),
                 let name = operation.name,
                 let symbol = operation.symbol
                 else { return nil }
@@ -74,13 +80,14 @@ class TransactionsStorage {
     }
 
     func delete(_ items: [Transaction]) {
-        try! realm.write {
+        try? realm.write {
             realm.delete(items)
         }
     }
 
     func update(state: TransactionState, for transaction: Transaction) {
-        try! realm.write {
+        NSLog("transaction \(transaction)")
+        try? realm.write {
             let tempObject = transaction
             tempObject.internalState = state.rawValue
             realm.add(tempObject, update: true)
@@ -89,13 +96,13 @@ class TransactionsStorage {
 
     func removeTransactions(for states: [TransactionState]) {
         let objects = realm.objects(Transaction.self).filter { states.contains($0.state) }
-        try! realm.write {
+        try? realm.write {
             realm.delete(objects)
         }
     }
 
     func deleteAll() {
-        try! realm.write {
+        try? realm.write {
             realm.delete(realm.objects(Transaction.self))
         }
     }
@@ -106,12 +113,12 @@ class TransactionsStorage {
 
     func mappedSections(for transactions: [Transaction]) -> [TransactionSection] {
         var items = [TransactionSection]()
-        let headerDates = NSOrderedSet(array: transactions.map { TransactionsViewModel.titleFormmater.string(from: $0.date ) })
+        let headerDates = NSOrderedSet(array: transactions.map { titleFormmater.string(from: $0.date ) })
         headerDates.forEach {
             guard let dateKey = $0 as? String else {
                 return
             }
-            let filteredTransactionByDate = Array(transactions.filter { TransactionsViewModel.titleFormmater.string(from: $0.date ) == dateKey })
+            let filteredTransactionByDate = Array(transactions.filter { titleFormmater.string(from: $0.date ) == dateKey })
             items.append(TransactionSection(title: dateKey, items: filteredTransactionByDate))
         }
         return items
@@ -120,11 +127,10 @@ class TransactionsStorage {
     func transactionsObservation() {
         transactionsObserver = transactions.observe { [weak self] _ in
             self?.updateTransactionSection()
-            self?.transactionsUpdateHandler()
         }
     }
 
-    func invalidateTransactionsObservation() {
+    deinit {
         transactionsObserver?.invalidate()
         transactionsObserver = nil
     }
