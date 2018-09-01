@@ -10,18 +10,15 @@ struct TokenViewCellViewModel {
     let viewModel: TokenObjectViewModel
     private let ticker: CoinTicker?
     let store: TransactionsStorage
-    //let currency: Currency
 
     init(
         viewModel: TokenObjectViewModel,
         ticker: CoinTicker?,
         store: TransactionsStorage
-        //currency: Currency
     ) {
         self.viewModel = viewModel
         self.ticker = ticker
         self.store = store
-        //self.currency = currency
     }
 
     var title: String {
@@ -41,7 +38,7 @@ struct TokenViewCellViewModel {
     }
 
     var currencyAmount: String? {
-        return TokensLayout.cell.totalFiatAmount(token: viewModel.token)
+        return TokensLayout.cell.totalFiatAmount(token: viewModel.token, ticker: ticker)
     }
 
     var amountFont: UIFont {

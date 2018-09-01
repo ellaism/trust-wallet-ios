@@ -93,7 +93,7 @@ final class TokensViewModel: NSObject {
             nf.numberStyle = .decimal
             nf.minimumIntegerDigits = 1
             nf.minimumFractionDigits = 2
-            nf.maximumFractionDigits = 18
+            nf.maximumFractionDigits = 8
             let res = nf.string(from: NSNumber(value: totalAmount))
             if res != nil {
                 return res! + " BTC"

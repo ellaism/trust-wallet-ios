@@ -35,31 +35,37 @@ struct TokensLayout {
             return "" + percent_change_24h + "%"
         }
 
-        static func totalFiatAmount(token: TokenObject) -> String? {
+        static func totalFiatAmount(token: TokenObject, ticker: CoinTicker?) -> String? {
+            guard let ticker = ticker, let price = Double(ticker.price), price > 0 else { return nil }
             let amount = token.balance
             guard amount > 0 else { return nil }
+            if (ticker.tickersKey == "tickers-BTC") {
+                let nf = NumberFormatter()
+                nf.numberStyle = .decimal
+                nf.minimumIntegerDigits = 1
+                nf.minimumFractionDigits = 8
+                nf.maximumFractionDigits = 8
+                let res = nf.string(from: NSNumber(value: price))
+                if res != nil {
+                    return res! + " BTC"
+                }
+            }
             return CurrencyFormatter.formatter.string(from: NSNumber(value: amount))
-//            guard let ticker = ticker else { return nil }
-//            let tokenValue = CurrencyFormatter.plainFormatter.string(from: token.valueBigInt, decimals: token.decimals).doubleValue
-//            let priceInUsd = Double(ticker.price) ?? 0
-//            let amount = tokenValue * priceInUsd
-//            if currency.rawValue == "BTC" {
-//                let nf = NumberFormatter()
-//                nf.numberStyle = .decimal
-//                nf.minimumIntegerDigits = 1
-//                nf.minimumFractionDigits = 2
-//                nf.maximumFractionDigits = 18
-//                let res = nf.string(from: NSNumber(value: amount))
-//                if res != nil {
-//                    return res! + " BTC"
-//                }
-//            }
-//            guard amount > 0 else { return nil }
-//            return CurrencyFormatter.formatter.string(from: NSNumber(value: amount))
         }
         
         static func marketPrice(for ticker: CoinTicker?) -> String? {
             guard let ticker = ticker, let price = Double(ticker.price), price > 0 else { return nil }
+            if (ticker.tickersKey == "tickers-BTC") {
+                let nf = NumberFormatter()
+                nf.numberStyle = .decimal
+                nf.minimumIntegerDigits = 1
+                nf.minimumFractionDigits = 0
+                nf.maximumFractionDigits = 0
+                let res = nf.string(from: NSNumber(value: (price * 100000000)))
+                if res != nil {
+                    return res! + " sats"
+                }
+            }
             return CurrencyFormatter.formatter.string(from: NSNumber(value: price))
         }
 
