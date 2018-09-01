@@ -186,7 +186,7 @@ class InCoordinator: Coordinator {
             browserCoordinator.navigationController.childNavigationController,
             settingsCoordinator.navigationController.childNavigationController,
         ]
-//add soap lamp attend false suffer evil tornado solar fortune virus guard
+
         navigationController.setViewControllers([tabBarController], animated: false)
         navigationController.setNavigationBarHidden(true, animated: false)
 
