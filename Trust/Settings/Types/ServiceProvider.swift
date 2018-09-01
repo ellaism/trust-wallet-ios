@@ -13,8 +13,11 @@ enum URLServiceProvider {
     case reddit
     case github
     case sourceCode
+    case upstreamSourceCode
     case privacyPolicy
     case termsOfService
+    case upstreamPrivacyPolicy
+    case upstreamTermsOfService
     var title: String {
         switch self {
         case .twitter: return "Twitter"
@@ -25,8 +28,11 @@ enum URLServiceProvider {
         case .bitcointalk: return "Bitcoin Talk"
         case .github: return "GitHub"
         case .sourceCode: return R.string.localizable.settingsSourceCodeButtonTitle()
-        case .privacyPolicy: return R.string.localizable.settingsPrivacyTitle()
+        case .upstreamSourceCode: return R.string.localizable.settingsUpstreamSourceCodeButtonTitle()
+        case .privacyPolicy: return R.string.localizable.settingsPrivacyPolicyButtonTitle()
         case .termsOfService: return R.string.localizable.settingsTermsOfServiceButtonTitle()
+        case .upstreamPrivacyPolicy: return R.string.localizable.settingsUpstreamPrivacyPolicyButtonTitle()
+        case .upstreamTermsOfService: return R.string.localizable.settingsUpstreamTermsOfServiceButtonTitle()
        }
     }
 
@@ -47,8 +53,11 @@ enum URLServiceProvider {
         case .github:
             return URL(string: Constants.githubUrl)
         case .sourceCode: return nil
+        case .upstreamSourceCode: return nil
         case .privacyPolicy: return nil
         case .termsOfService: return nil
+        case .upstreamPrivacyPolicy: return nil
+        case .upstreamTermsOfService: return nil
         }
     }
 
@@ -73,10 +82,16 @@ enum URLServiceProvider {
         case .bitcointalk:
             return Constants.bitcoinTalkUrl
         case .sourceCode:
+            return "https://github.com/ellaism/trust-wallet-ios"
+        case .upstreamSourceCode:
             return "https://github.com/TrustWallet/trust-wallet-ios"
         case .privacyPolicy:
-            return "https://trustwalletapp.com/privacy-policy.html"
+            return "https://www.outdoordevs.com/privacy.html"
         case .termsOfService:
+            return "https://www.outdoordevs.com/termsofuse.html"
+        case .upstreamPrivacyPolicy:
+            return "https://trustwalletapp.com/privacy-policy.html"
+        case .upstreamTermsOfService:
             return "https://trustwalletapp.com/terms.html"
         }
     }
@@ -91,8 +106,11 @@ enum URLServiceProvider {
         case .reddit: return R.image.settings_colorful_reddit()
         case .github: return R.image.settings_colorful_github()
         case .sourceCode: return nil
+        case .upstreamSourceCode: return nil
         case .privacyPolicy: return nil
         case .termsOfService: return nil
+        case .upstreamPrivacyPolicy: return nil
+        case .upstreamTermsOfService: return nil
         }
     }
 

@@ -61,13 +61,16 @@
 "settings.network.button.title" = "Network";
 "settings.openSourceDevelopment.label.title" = "Open Source Development";
 "settings.privacyPolicy.button.title" = "Privacy Policy";
+"settings.upstreamPrivacyPolicy.button.title" = "Upstream Privacy Policy";
 "settings.pushNotifications.button.title" = "Push Notifications";
 "settings.rateUsAppStore.button.title" = "Rate Us on App Store";
 "settings.reportBug.button.title" = "Report a Bug";
 "settings.security.label.title" = "Security";
 "settings.sourceCode.button.title" = "Source Code";
+"settings.upstreamSourceCode.button.title" = "Upstream Source Code";
 "settings.support.label.title" = "Support";
 "settings.termsOfService.button.title" = "Terms of Service";
+"settings.upstreamTermsOfService.button.title" = "Upstream Terms of Service";
 "settings.version.label.title" = "Version";
 "transactions.deposit.button.title" = "Buy";
 "transactions.myAddress.button.title" = "My Address";

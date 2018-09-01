@@ -26,11 +26,14 @@ final class AboutViewController: FormViewController {
         form +++ Section()
             
             <<< linkProvider(type: .sourceCode)
+            <<< linkProvider(type: .upstreamSourceCode)
             
             +++ Section()
             
             <<< linkProvider(type: .privacyPolicy)
             <<< linkProvider(type: .termsOfService)
+            <<< linkProvider(type: .upstreamPrivacyPolicy)
+            <<< linkProvider(type: .upstreamTermsOfService)
             
             +++ Section()
             
