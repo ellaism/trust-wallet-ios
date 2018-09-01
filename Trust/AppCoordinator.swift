@@ -4,6 +4,7 @@ import Foundation
 import TrustCore
 import UIKit
 import URLNavigator
+import Branch
 
 class AppCoordinator: NSObject, Coordinator {
     let navigationController: NavigationController
@@ -52,7 +53,11 @@ class AppCoordinator: NSObject, Coordinator {
             resetToWelcomeScreen()
         }
         pushNotificationRegistrar.reRegister()
-
+        
+        Branch.setTrackingDisabled(true)
+        Analitics.branch.update(with: false)
+        Analitics.answer.update(with: false)
+        
 //        navigator.branch.newEventClosure = { [weak self] event in
 //            guard let coordinator = self?.inCoordinator else { return false }
 //            return coordinator.handleEvent(event)
