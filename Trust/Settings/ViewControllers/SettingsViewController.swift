@@ -118,7 +118,7 @@ final class SettingsViewController: FormViewController, Coordinator {
             
             <<< currencyRow()
             <<< browserRow()
-            <<< privacyRow()
+            //<<< privacyRow()
             
             +++ Section(R.string.localizable.settingsJoinCommunityLabelTitle())
             
@@ -135,8 +135,8 @@ final class SettingsViewController: FormViewController, Coordinator {
             +++ Section()
             <<< aboutRow()
             
-            +++ Section()
-            <<< developersRow()
+            //+++ Section()
+            //<<< developersRow()
     }
     
     private func shareWithFriendsRow() -> ButtonRow {
