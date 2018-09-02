@@ -22,6 +22,7 @@ protocol NetworkProtocol: TrustNetworkProtocol {
     func tokensList() -> Promise<[TokenObject]>
     func transactions(for address: Address, on server: RPCServer, startBlock: Int, page: Int, contract: String?, completion: @escaping (_ result: ([Transaction]?, Bool)) -> Void)
     func search(query: String) -> Promise<[TokenObject]>
+    func search(query: String, tokens: Set<TokenObject>) -> Promise<[TokenObject]>
 }
 
 final class TrustNetwork: NetworkProtocol {
@@ -131,10 +132,23 @@ final class TrustNetwork: NetworkProtocol {
             }
         }
     }
-
+    
     func search(query: String) -> Promise<[TokenObject]> {
+        return search(query: query, tokens: Set<TokenObject>())
+    }
+
+    func search(query: String, tokens: Set<TokenObject>) -> Promise<[TokenObject]> {
+        let localNetworks = networks.filter { net_id in
+            tokens.contains { element in
+                if element.order == net_id {
+                    return true
+                } else {
+                    return false
+                }
+            }
+        }
         return Promise { seal in
-            provider.request(.search(query: query, networks: networks)) { result in
+            provider.request(.search(query: query, networks: localNetworks)) { result in
                 switch result {
                 case .success(let response):
                     do {
