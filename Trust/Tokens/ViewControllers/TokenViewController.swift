@@ -59,7 +59,7 @@ final class TokenViewController: UIViewController {
 
         // TODO: Enable when finished
         if isDebug {
-            navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .organize, target: self, action: #selector(infoAction))
+            //navigationItem.rightBarButtonItem = UIBarButtonItem(barButtonSystemItem: .organize, target: self, action: #selector(infoAction))
         }
     }
 
