@@ -103,7 +103,7 @@ enum RPCServer {
             case .callisto: return "https://callisto.trustwalletapp.com"
             case .poa: return "https://poa.trustwalletapp.com"
             case .gochain: return "https://gochain.trustwalletapp.com"
-            case .ellaism: return "http://trust-api.outdoordevs.com"
+            case .ellaism: return "https://trust-api.outdoordevs.com"
             }
         }()
         return URL(string: urlString)!

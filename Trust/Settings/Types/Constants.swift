@@ -31,7 +31,7 @@ public struct Constants {
     public static let dappsOpenSea = ""
     public static let images = "https://ellaism.github.io/trust-wallet-ios/images"
 
-    public static let trustAPI = URL(string: "http://trust-api.outdoordevs.com")!
+    public static let trustAPI = URL(string: "https://trust-api.outdoordevs.com")!
 }
 
 public struct UnitConfiguration {
