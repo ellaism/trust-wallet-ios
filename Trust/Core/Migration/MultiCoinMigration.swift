@@ -35,17 +35,15 @@ class MultiCoinMigration {
         self.appTracker = appTracker
     }
 
-    func start() -> Bool {
-        if !keystore.wallets.isEmpty && appTracker.completeMultiCoinMigration == false {
-            appTracker.completeMultiCoinMigration = true
-            return self.runMigrate()
-        }
+    func start(completion: @escaping (Bool) -> Void) -> Void {
         appTracker.completeMultiCoinMigration = true
-        return false
+        if !keystore.wallets.isEmpty && appTracker.completeMultiCoinMigration == false {
+            self.runMigrate(completion: completion)
+        }
     }
 
     //TODO: Just run this once
-    @discardableResult func runMigrate() -> Bool {
+    @discardableResult func runMigrate(completion: @escaping (Bool) -> Void) -> Bool {
         func keychainOldKey(for account: Account) -> String {
             guard let wallet = account.wallet else {
                 return account.address.description.lowercased()
@@ -58,10 +56,32 @@ class MultiCoinMigration {
             }
         }
         keystore.wallets.filter { !$0.accounts.isEmpty }.forEach { wallet in
+            // Each wallet needs to be converted to Ellaism wallet
             switch wallet.type {
             case .hd, .privateKey:
                 if let account = wallet.accounts.first, let password = keychain.get(keychainOldKey(for: account)), let walletI = account.wallet {
-                    let _ = keystore.setPassword(password, for: walletI)
+                    keystore.export(account: account, password: password, newPassword: password) { [self] exportResult in
+                        switch exportResult {
+                        case .success(let data):
+                            let importType: ImportType = .keystore(string: data, password: password)
+                            self.keystore.importWallet(type: importType, coin: .ellaism) { [self] importResult in
+                                let _ = self.keystore.setPassword(password, for: walletI)
+                                switch importResult {
+                                case .success:
+                                    self.keystore.delete(wallet: wallet) { deleteResult in
+                                        switch deleteResult {
+                                        case .success: completion(true)
+                                        case .failure: completion(false)
+                                        }
+                                    }
+                                case .failure:
+                                    completion(false)
+                                }
+                            }
+                        case .failure:
+                            completion(false)
+                        }
+                    }
                 }
             case .address:
                 break
@@ -72,7 +92,7 @@ class MultiCoinMigration {
         let addresses = watchAddresses.compactMap {
             EthereumAddress(string: $0)
         }.compactMap {
-            WalletAddress(coin: .ethereum, address: $0)
+            WalletAddress(coin: .ellaism, address: $0)
         }
         keystore.storage.store(address: addresses)
         return true
