@@ -52,16 +52,9 @@ class AppCoordinator: NSObject, Coordinator {
         } else {
             resetToWelcomeScreen()
         }
-        pushNotificationRegistrar.reRegister()
         
-        Branch.setTrackingDisabled(true)
         Analitics.branch.update(with: false)
         Analitics.answer.update(with: false)
-        
-//        navigator.branch.newEventClosure = { [weak self] event in
-//            guard let coordinator = self?.inCoordinator else { return false }
-//            return coordinator.handleEvent(event)
-//        }
     }
 
     func showTransactions(for wallet: WalletInfo) {
@@ -98,11 +91,8 @@ class AppCoordinator: NSObject, Coordinator {
 
     private func migrations() {
         let multiCoinCigration = MultiCoinMigration(keystore: keystore, appTracker: appTracker)
-        let run = multiCoinCigration.start()
-        if run {
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
-                self.showMigrationMessage()
-            }
+        multiCoinCigration.start { _ in
+            self.inCoordinator!.restart(for: self.keystore.wallets.first!, tab: Tabs.wallet(.none))
         }
     }
 
