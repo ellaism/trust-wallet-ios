@@ -29,7 +29,7 @@ final class WalletSession {
 
     lazy var currentRPC: RPCServer = {
         if account.multiWallet {
-            return .main
+            return .ellaism
         }
         return account.coin!.server
     }()
