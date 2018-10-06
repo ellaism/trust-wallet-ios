@@ -18,7 +18,7 @@ final class ProtectionCoordinator: Coordinator {
     func didFinishLaunchingWithOptions() {
         splashCoordinator.start()
         lockEnterPasscodeCoordinator.start()
-        lockEnterPasscodeCoordinator.showAuthentication()
+        //lockEnterPasscodeCoordinator.showAuthentication()
     }
 
     func applicationDidBecomeActive() {

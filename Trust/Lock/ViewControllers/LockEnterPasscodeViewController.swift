@@ -23,6 +23,9 @@ final class LockEnterPasscodeViewController: LockPasscodeViewController {
             showBiometricAuth()
         }
     }
+    func resetBiometricAuth() {
+        self.context = LAContext()
+    }
     private func showBiometricAuth() {
         self.context = LAContext()
         self.touchValidation()
@@ -71,6 +74,7 @@ final class LockEnterPasscodeViewController: LockPasscodeViewController {
         }
     }
     private func unlock(withResult success: Bool, bioUnlock: Bool) {
+        self.hideKeyboard()
         self.view.endEditing(true)
         if success {
             lock.removeAutoLockTime()
@@ -82,11 +86,10 @@ final class LockEnterPasscodeViewController: LockPasscodeViewController {
     private func canEvaluatePolicy() -> Bool {
         return context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: nil)
     }
-    private func touchValidation() {
+    func touchValidation() {
         guard canEvaluatePolicy() else {
             return
         }
-        self.hideKeyboard()
         context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: lockEnterPasscodeViewModel.loginReason) { [weak self] success, _ in
             DispatchQueue.main.async {
                 guard let `self` = self else { return }

@@ -29,12 +29,18 @@ final class LockEnterPasscodeCoordinator: Coordinator {
     }
     //This method should be refactored!!!
     func showAuthentication() {
-        guard window.isKeyWindow, lock.isPasscodeSet() else {
-            Lock().removeAutoLockTime()
-            return
+        if window.isKeyWindow {
+            if lock.isPasscodeSet() {
+                Lock().removeAutoLockTime()
+                lockEnterPasscodeViewController.resetBiometricAuth()
+                lockEnterPasscodeViewController.touchValidation()
+                lockEnterPasscodeViewController.hideKeyboard()
+                return
+            }
         }
 
         lockEnterPasscodeViewController.cleanUserInput()
+        lockEnterPasscodeViewController.showKeyboard()
     }
 
     func stop() {
